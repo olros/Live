@@ -1,13 +1,13 @@
 fresh:
-	make clean
+	gradlew clean build
 	docker-compose up --build
 
-clean:
-	gradlew clean build
-
-run:
+start:
 	gradlew build
 	docker-compose up --build
+
+s:
+	make start
 
 test:
 	docker-compose run ./gradlew test

@@ -10,27 +10,27 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/games")
 class ArticleController(private val gameRepository: GameRepository) {
 
-    @GetMapping("/articles")
+    @GetMapping
     fun getAllArticles(): List<Game> =
             gameRepository.findAll()
 
 
-    @PostMapping("/articles")
+    @PostMapping
     fun createNewArticle(@Valid @RequestBody article: Game): Game =
             gameRepository.save(article)
 
 
-    @GetMapping("/articles/{id}")
+    @GetMapping("/{id}")
     fun getArticleById(@PathVariable(value = "id") articleId: Long): ResponseEntity<Game> {
         return gameRepository.findById(articleId).map { article ->
             ResponseEntity.ok(article)
         }.orElse(ResponseEntity.notFound().build())
     }
 
-    @PutMapping("/articles/{id}")
+    @PutMapping("/{id}")
     fun updateArticleById(@PathVariable(value = "id") articleId: Long,
                           @Valid @RequestBody newArticle: Game): ResponseEntity<Game> {
 
@@ -42,7 +42,7 @@ class ArticleController(private val gameRepository: GameRepository) {
 
     }
 
-    @DeleteMapping("/articles/{id}")
+    @DeleteMapping("/{id}")
     fun deleteArticleById(@PathVariable(value = "id") articleId: Long): ResponseEntity<Void> {
 
         return gameRepository.findById(articleId).map { article  ->

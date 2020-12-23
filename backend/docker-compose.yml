@@ -5,7 +5,7 @@ services:
     image: api
     build: ./
     ports:
-      - "8090:8080"
+      - "8080:8080"
     depends_on:
       - live_db
   live_db:
