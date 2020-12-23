@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  api:
+    container_name: api
+    image: api
+    build: ./
+    ports:
+      - "8090:8080"
+    depends_on:
+      - live_db
+  live_db:
+    image: mysql:8
+    container_name: live_db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=live_db
+  phpmyadmin:
+    container_name: phpmyadmin
+    depends_on:
+      - live_db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - '8070:80'
+    environment:
+      PMA_HOST: live_db
+      MYSQL_ROOT_PASSWORD: password
