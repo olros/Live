@@ -25,12 +25,12 @@ import javax.validation.Valid
 @CrossOrigin(origins = ["*"], maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
-class AuthController (
-    private val authenticationManager: AuthenticationManager,
-    private val userRepository: UserRepository,
-    private val roleRepository: RoleRepository,
-    private val encoder: PasswordEncoder,
-    private val jwtUtils: JwtUtils,
+class AuthController(
+        private val authenticationManager: AuthenticationManager,
+        private val userRepository: UserRepository,
+        private val roleRepository: RoleRepository,
+        private val encoder: PasswordEncoder,
+        private val jwtUtils: JwtUtils,
 ) {
 
     @PostMapping("/signin")
@@ -45,6 +45,7 @@ class AuthController (
                 .collect(Collectors.toList())
         return ResponseEntity.ok<Any>(JwtResponse(jwt,
                 userDetails.id,
+                userDetails.name,
                 userDetails.email,
                 roles))
     }
@@ -58,7 +59,7 @@ class AuthController (
         }
 
         // Create new user's account
-        val user = User(0, signUpRequest.email,
+        val user = User(0, signUpRequest.name, signUpRequest.email,
                 encoder.encode(signUpRequest.password))
         val strRoles: Set<String>? = signUpRequest.role
         val roles: MutableSet<Role> = HashSet<Role>()

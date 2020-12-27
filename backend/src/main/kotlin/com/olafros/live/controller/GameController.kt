@@ -1,8 +1,6 @@
 package com.olafros.live.controller
 
 import com.olafros.live.model.Game
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
 import com.olafros.live.repository.GameRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -45,7 +43,7 @@ class ArticleController(private val gameRepository: GameRepository) {
     @DeleteMapping("/{id}")
     fun deleteArticleById(@PathVariable(value = "id") articleId: Long): ResponseEntity<Void> {
 
-        return gameRepository.findById(articleId).map { article  ->
+        return gameRepository.findById(articleId).map { article ->
             gameRepository.delete(article)
             ResponseEntity<Void>(HttpStatus.OK)
         }.orElse(ResponseEntity.notFound().build())

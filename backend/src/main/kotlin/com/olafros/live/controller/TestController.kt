@@ -21,14 +21,8 @@ class TestController {
         return "User Content."
     }
 
-    @GetMapping("/mod")
-    @PreAuthorize("hasRole('MODERATOR')")
-    fun moderatorAccess(): String {
-        return "Moderator Board."
-    }
-
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/false")
+    @PreAuthorize("authentication.name == 'olaf@gmail.com'")
     fun adminAccess(): String {
         return "Admin Board."
     }

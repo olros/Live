@@ -5,8 +5,9 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 
-class SignupRequest (
-    var email: @NotBlank @Size(max = 50) @Email String,
-    var role: Set<String>? = null,
-    var password: @NotBlank @Size(min = 6, max = 40) String,
+class SignupRequest(
+        var name: @NotBlank @Size(max = 100) String,
+        var email: @NotBlank @Size(max = 50) @Email String,
+        var role: Set<String>? = null,
+        var password: @NotBlank @Size(min = 6, max = 40) String,
 )

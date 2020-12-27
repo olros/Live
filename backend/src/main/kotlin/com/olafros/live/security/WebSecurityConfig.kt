@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import java.lang.Exception
 
 
 @Configuration
@@ -29,6 +28,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
     @Autowired
     private val unauthorizedHandler: AuthEntryPointJwt? = null
+
     @Bean
     fun authenticationJwtTokenFilter(): AuthTokenFilter {
         return AuthTokenFilter()

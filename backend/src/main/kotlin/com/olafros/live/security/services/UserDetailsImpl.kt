@@ -7,8 +7,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.stream.Collectors
 
-data class UserDetailsImpl(val id: Long, val email: String, @field:JsonIgnore private val password: String,
-                      private val authorities: Collection<GrantedAuthority>) : UserDetails {
+data class UserDetailsImpl(val id: Long, val name: String, val email: String, @field:JsonIgnore private val password: String,
+                           private val authorities: Collection<GrantedAuthority>) : UserDetails {
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
         return authorities
@@ -46,6 +46,7 @@ data class UserDetailsImpl(val id: Long, val email: String, @field:JsonIgnore pr
                     .collect(Collectors.toList())
             return UserDetailsImpl(
                     user.id,
+                    user.name,
                     user.email,
                     user.password,
                     authorities)

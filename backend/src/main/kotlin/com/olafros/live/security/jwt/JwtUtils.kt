@@ -28,7 +28,7 @@ class JwtUtils {
     }
 
     fun getEmailFromJwtToken(token: String?): String {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject()
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.subject
     }
 
     fun validateJwtToken(authToken: String?): Boolean {
