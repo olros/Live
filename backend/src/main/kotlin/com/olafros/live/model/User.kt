@@ -7,12 +7,11 @@ import javax.validation.constraints.Size
 
 
 @Entity
-@Table(name = "users", uniqueConstraints = [UniqueConstraint(columnNames = ["username"]), UniqueConstraint(columnNames = ["email"])])
+@Table(name = "users", uniqueConstraints = [UniqueConstraint(columnNames = ["email"])])
 class User (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Long = 0,
-        var username: @NotBlank @Size(max = 20) String,
         var email: @NotBlank @Size(max = 50) @Email String,
         var password: @NotBlank @Size(max = 120) String,
 

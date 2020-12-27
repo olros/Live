@@ -36,7 +36,7 @@ class AuthController (
     @PostMapping("/signin")
     fun authenticateUser(@RequestBody loginRequest: @Valid LoginRequest): ResponseEntity<*> {
         val authentication = authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken(loginRequest.username, loginRequest.password))
+                UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password))
         SecurityContextHolder.getContext().authentication = authentication
         val jwt = jwtUtils.generateJwtToken(authentication)
         val userDetails = authentication.principal as UserDetailsImpl
@@ -45,18 +45,12 @@ class AuthController (
                 .collect(Collectors.toList())
         return ResponseEntity.ok<Any>(JwtResponse(jwt,
                 userDetails.id,
-                userDetails.username,
                 userDetails.email,
                 roles))
     }
 
     @PostMapping("/signup")
     fun registerUser(@RequestBody signUpRequest: @Valid SignupRequest): ResponseEntity<*> {
-        if (userRepository.existsByUsername(signUpRequest.username)) {
-            return ResponseEntity
-                    .badRequest()
-                    .body<Any>(MessageResponse("Error: Username is already taken!"))
-        }
         if (userRepository.existsByEmail(signUpRequest.email)) {
             return ResponseEntity
                     .badRequest()
@@ -64,8 +58,7 @@ class AuthController (
         }
 
         // Create new user's account
-        val user = User(0, signUpRequest.username,
-                signUpRequest.email,
+        val user = User(0, signUpRequest.email,
                 encoder.encode(signUpRequest.password))
         val strRoles: Set<String>? = signUpRequest.role
         val roles: MutableSet<Role> = HashSet<Role>()

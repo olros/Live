@@ -7,7 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.stream.Collectors
 
-data class UserDetailsImpl(val id: Long, private val username: String, val email: String, @field:JsonIgnore private val password: String,
+data class UserDetailsImpl(val id: Long, val email: String, @field:JsonIgnore private val password: String,
                       private val authorities: Collection<GrantedAuthority>) : UserDetails {
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
@@ -19,7 +19,7 @@ data class UserDetailsImpl(val id: Long, private val username: String, val email
     }
 
     override fun getUsername(): String {
-        return username
+        return email
     }
 
     override fun isAccountNonExpired(): Boolean {
@@ -46,7 +46,6 @@ data class UserDetailsImpl(val id: Long, private val username: String, val email
                     .collect(Collectors.toList())
             return UserDetailsImpl(
                     user.id,
-                    user.username,
                     user.email,
                     user.password,
                     authorities)

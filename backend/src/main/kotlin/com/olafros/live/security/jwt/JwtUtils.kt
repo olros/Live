@@ -27,7 +27,7 @@ class JwtUtils {
                 .compact()
     }
 
-    fun getUserNameFromJwtToken(token: String?): String {
+    fun getEmailFromJwtToken(token: String?): String {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject()
     }
 

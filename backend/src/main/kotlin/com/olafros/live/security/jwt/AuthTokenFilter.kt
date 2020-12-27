@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.util.StringUtils
 import org.springframework.web.filter.OncePerRequestFilter
@@ -29,8 +28,8 @@ class AuthTokenFilter : OncePerRequestFilter() {
         try {
             val jwt = parseJwt(request)
             if (jwt != null && jwtUtils?.validateJwtToken(jwt) == true) {
-                val username: String = jwtUtils.getUserNameFromJwtToken(jwt)
-                val userDetails = userDetailsService!!.loadUserByUsername(username)
+                val email: String = jwtUtils.getEmailFromJwtToken(jwt)
+                val userDetails = userDetailsService!!.loadUserByUsername(email)
                 val authentication = UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.authorities)
                 authentication.details = WebAuthenticationDetailsSource().buildDetails(request)

@@ -14,8 +14,8 @@ class UserDetailsServiceImpl : UserDetailsService {
     lateinit var userRepository: UserRepository
 
     @Transactional
-    override fun loadUserByUsername(username: String): UserDetails {
-        val user: User = userRepository.findByUsername(username)
+    override fun loadUserByUsername(email: String): UserDetails {
+        val user: User = userRepository.findByEmail(email)
         return UserDetailsImpl.build(user)
     }
 }
