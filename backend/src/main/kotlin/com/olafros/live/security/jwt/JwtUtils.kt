@@ -9,14 +9,13 @@ import org.springframework.stereotype.Component
 import java.security.SignatureException
 import java.util.*
 
-
 @Component
 class JwtUtils {
     @Value("\${live.app.jwtSecret}")
     private val jwtSecret: String? = null
 
-    @Value("\${live.app.jwtExpirationMs}")
-    private val jwtExpirationMs = 0
+    // Expires after 180 days
+    private val jwtExpirationMs = 15552000000
     fun generateJwtToken(authentication: Authentication): String {
         val userPrincipal = authentication.principal as UserDetailsImpl
         return Jwts.builder()

@@ -1,10 +1,8 @@
 package com.olafros.live.model
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Size
 
 @Entity
 data class Game(
@@ -16,6 +14,12 @@ data class Game(
 
         @get: NotBlank
         val referee: String = "",
+
+        @NotBlank
+        val extra: String = "",
+
+        @Column(columnDefinition = "varchar(255) default 'John Snow'")
+        val extra2: @NotBlank @Size(max = 255) String,
 
         @get: NotBlank
         val time: String = ""

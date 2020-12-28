@@ -4,7 +4,7 @@ import javax.persistence.*
 
 
 @Entity
-data class Role(
+class Role(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Int,
