@@ -3,7 +3,6 @@ package com.olafros.live.security
 import com.olafros.live.security.jwt.AuthEntryPointJwt
 import com.olafros.live.security.jwt.AuthTokenFilter
 import com.olafros.live.security.services.UserDetailsServiceImpl
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -18,29 +17,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
-
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class WebSecurityConfig : WebSecurityConfigurerAdapter() {
-    @Autowired
-    var userDetailsService: UserDetailsServiceImpl? = null
-
-    @Autowired
-    private val unauthorizedHandler: AuthEntryPointJwt? = null
+class WebSecurityConfig(var userDetailsService: UserDetailsServiceImpl, val unauthorizedHandler: AuthEntryPointJwt) : WebSecurityConfigurerAdapter() {
 
     @Bean
     fun authenticationJwtTokenFilter(): AuthTokenFilter {
         return AuthTokenFilter()
     }
 
-    @Throws(Exception::class)
     public override fun configure(authenticationManagerBuilder: AuthenticationManagerBuilder) {
         authenticationManagerBuilder.userDetailsService<UserDetailsService?>(userDetailsService).passwordEncoder(passwordEncoder())
     }
 
     @Bean
-    @Throws(Exception::class)
     override fun authenticationManagerBean(): AuthenticationManager {
         return super.authenticationManagerBean()
     }
@@ -50,7 +41,6 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
         return BCryptPasswordEncoder()
     }
 
-    @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()

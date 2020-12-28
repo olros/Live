@@ -14,7 +14,6 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-
 class AuthTokenFilter : OncePerRequestFilter() {
     @Autowired
     private val jwtUtils: JwtUtils? = null

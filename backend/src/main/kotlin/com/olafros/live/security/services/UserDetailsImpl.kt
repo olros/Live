@@ -7,11 +7,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.stream.Collectors
 
-data class UserDetailsImpl(val id: Long, val name: String, val email: String, @field:JsonIgnore private val password: String,
-                           private val authorities: Collection<GrantedAuthority>) : UserDetails {
+data class UserDetailsImpl(val id: Long, val name: String, val email: String, @field:JsonIgnore private val password: String) : UserDetails {
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
-        return authorities
+        return emptyList()
     }
 
     override fun getPassword(): String {
@@ -41,15 +40,11 @@ data class UserDetailsImpl(val id: Long, val name: String, val email: String, @f
     companion object {
         private const val serialVersionUID = 1L
         fun build(user: User): UserDetailsImpl {
-            val authorities: List<GrantedAuthority> = user.roles.stream()
-                    .map { role -> SimpleGrantedAuthority(role.name.name) }
-                    .collect(Collectors.toList())
             return UserDetailsImpl(
                     user.id,
                     user.name,
                     user.email,
-                    user.password,
-                    authorities)
+                    user.password)
         }
     }
 }

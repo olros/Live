@@ -15,8 +15,4 @@ class User(
         var name: @NotBlank @Size(max = 100) String,
         var email: @NotBlank @Size(max = 50) @Email String,
         var password: @NotBlank @Size(max = 120) String,
-
-        @ManyToMany(fetch = FetchType.LAZY)
-        @JoinTable(name = "user_roles", joinColumns = [JoinColumn(name = "user_id")], inverseJoinColumns = [JoinColumn(name = "role_id")])
-        var roles: MutableSet<Role> = mutableSetOf()
 )
