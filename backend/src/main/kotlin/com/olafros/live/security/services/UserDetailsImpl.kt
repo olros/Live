@@ -3,9 +3,7 @@ package com.olafros.live.security.services
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.olafros.live.model.User
 import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
-import java.util.stream.Collectors
 
 data class UserDetailsImpl(val id: Long, val name: String, val email: String, @field:JsonIgnore private val password: String) : UserDetails {
 

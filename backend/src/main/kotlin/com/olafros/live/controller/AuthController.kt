@@ -11,11 +11,9 @@ import com.olafros.live.security.services.UserDetailsImpl
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
-import java.util.stream.Collectors
 import javax.validation.Valid
 
 @CrossOrigin(origins = ["*"], maxAge = 3600)
@@ -45,13 +43,12 @@ class AuthController(
     fun registerUser(@RequestBody signUpRequest: @Valid SignupRequest): ResponseEntity<*> {
         if (userRepository.existsByEmail(signUpRequest.email)) {
             return ResponseEntity
-                    .badRequest()
-                    .body<Any>(MessageResponse("Error: Email is already in use!"))
+                    .status(409)
+                    .body<Any>(MessageResponse("Email is already in use!"))
         }
 
         // Create new user's account
-        val user = User(0, signUpRequest.name, signUpRequest.email,
-                encoder.encode(signUpRequest.password))
+        val user = User(0, signUpRequest.name, signUpRequest.email, encoder.encode(signUpRequest.password))
         userRepository.save<User>(user)
         return ResponseEntity.ok<Any>(MessageResponse("User registered successfully!"))
     }
