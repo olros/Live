@@ -1,6 +1,8 @@
 package com.olafros.live.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -11,14 +13,33 @@ data class League(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Long = 0,
-        var name: @NotBlank @Size(max = 120) String,
+        var name: @NotBlank @Size(max = 128) String,
 
-        @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+//        @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+        @ManyToMany(cascade = [CascadeType.PERSIST])
         @JoinTable(
                 name = "league_admins",
-                joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")],
-                inverseJoinColumns = [JoinColumn(name = "league_id", referencedColumnName = "id")]
+                joinColumns = [JoinColumn(name = "league_id", referencedColumnName = "id")],
+                inverseJoinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")]
         )
-//        @field:JsonIgnore
-        var admins: MutableSet<User> = mutableSetOf()
+        @JsonBackReference
+        @JsonIgnore
+        var admins: MutableList<User> = mutableListOf(),
+
+//        @OneToMany(mappedBy = "league", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+//        @JsonManagedReference
+//        var teams: MutableSet<Team> = mutableSetOf()
 )
+
+data class LeagueDto(val id: Long, val name: String)
+data class LeagueDtoList(val id: Long, val name: String)
+data class CreateLeagueDto(val name: String)
+data class UpdateLeagueDto(val name: String?)
+
+fun League.toLeagueDto(): LeagueDto {
+    return LeagueDto(this.id, this.name)
+}
+
+fun League.toLeagueDtoList(): LeagueDtoList {
+    return LeagueDtoList(this.id, this.name)
+}
