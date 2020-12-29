@@ -1,6 +1,5 @@
 package com.olafros.live.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import javax.persistence.*
@@ -19,16 +18,20 @@ data class User(
         @JsonIgnore
         var password: @NotBlank @Size(max = 128) String,
 
-//        @ManyToMany(mappedBy = "admins", fetch = FetchType.LAZY)
-        @ManyToMany(mappedBy = "admins")
+        @ManyToMany(mappedBy = "admins", fetch = FetchType.LAZY)
         @JsonManagedReference
         var leagues: MutableList<League> = mutableListOf()
 )
 
 data class UserDto(val id: Long, val name: String, val email: String, val leagues: List<LeagueDtoList>)
+data class UserDtoList(val id: Long, val name: String, val email: String)
 data class CreateUserDto(val name: String, val email: String, val password: String)
 data class UpdateUserDto(val name: String?)
 
 fun User.toUserDto(): UserDto {
     return UserDto(this.id, this.name, this.email, this.leagues.map { league -> league.toLeagueDtoList() })
+}
+
+fun User.toUserDtoList(): UserDtoList {
+    return UserDtoList(this.id, this.name, this.email)
 }
