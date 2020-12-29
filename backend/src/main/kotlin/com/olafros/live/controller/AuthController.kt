@@ -8,15 +8,18 @@ import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.UserRepository
 import com.olafros.live.security.jwt.JwtUtils
 import com.olafros.live.security.services.UserDetailsImpl
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 
-@CrossOrigin(origins = ["*"], maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 class AuthController(
@@ -33,17 +36,19 @@ class AuthController(
         SecurityContextHolder.getContext().authentication = authentication
         val jwt = jwtUtils.generateJwtToken(authentication)
         val userDetails = authentication.principal as UserDetailsImpl
-        return ResponseEntity.ok<Any>(JwtResponse(jwt,
+        return ResponseEntity.ok<Any>(JwtResponse(
+                jwt,
                 userDetails.id,
                 userDetails.name,
-                userDetails.email))
+                userDetails.email,
+        ))
     }
 
     @PostMapping("/signup")
     fun registerUser(@RequestBody signUpRequest: @Valid SignupRequest): ResponseEntity<*> {
         if (userRepository.existsByEmail(signUpRequest.email)) {
             return ResponseEntity
-                    .status(409)
+                    .status(HttpStatus.CONFLICT)
                     .body<Any>(MessageResponse("Email is already in use!"))
         }
 
