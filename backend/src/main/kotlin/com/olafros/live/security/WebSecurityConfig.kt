@@ -20,7 +20,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class WebSecurityConfig(var userDetailsService: UserDetailsServiceImpl, val unauthorizedHandler: AuthEntryPointJwt) : WebSecurityConfigurerAdapter() {
+class WebSecurityConfig(var userDetailsService: UserDetailsServiceImpl, val unauthorizedHandler: AuthEntryPointJwt) :
+    WebSecurityConfigurerAdapter() {
 
     @Bean
     fun authenticationJwtTokenFilter(): AuthTokenFilter {
@@ -28,7 +29,8 @@ class WebSecurityConfig(var userDetailsService: UserDetailsServiceImpl, val unau
     }
 
     public override fun configure(authenticationManagerBuilder: AuthenticationManagerBuilder) {
-        authenticationManagerBuilder.userDetailsService<UserDetailsService?>(userDetailsService).passwordEncoder(passwordEncoder())
+        authenticationManagerBuilder.userDetailsService<UserDetailsService?>(userDetailsService)
+            .passwordEncoder(passwordEncoder())
     }
 
     @Bean
@@ -43,12 +45,12 @@ class WebSecurityConfig(var userDetailsService: UserDetailsServiceImpl, val unau
 
     override fun configure(http: HttpSecurity) {
         http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/league/**").permitAll()
-                .anyRequest().authenticated()
+            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+            .authorizeRequests()
+            .antMatchers("/api/auth/**").permitAll()
+            .antMatchers("/api/league/**").permitAll()
+            .anyRequest().authenticated()
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)
     }
 }

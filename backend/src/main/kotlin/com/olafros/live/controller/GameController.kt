@@ -13,12 +13,12 @@ class ArticleController(private val gameRepository: GameRepository) {
 
     @GetMapping
     fun getAllArticles(): List<Game> =
-            gameRepository.findAll()
+        gameRepository.findAll()
 
 
     @PostMapping
     fun createNewArticle(@Valid @RequestBody article: Game): Game =
-            gameRepository.save(article)
+        gameRepository.save(article)
 
 
     @GetMapping("/{id}")
@@ -29,12 +29,14 @@ class ArticleController(private val gameRepository: GameRepository) {
     }
 
     @PutMapping("/{id}")
-    fun updateArticleById(@PathVariable(value = "id") articleId: Long,
-                          @Valid @RequestBody newArticle: Game): ResponseEntity<Game> {
+    fun updateArticleById(
+        @PathVariable(value = "id") articleId: Long,
+        @Valid @RequestBody newArticle: Game
+    ): ResponseEntity<Game> {
 
         return gameRepository.findById(articleId).map { existingArticle ->
             val updatedArticle: Game = existingArticle
-                    .copy(title = newArticle.title, time = newArticle.time)
+                .copy(title = newArticle.title, time = newArticle.time)
             ResponseEntity.ok().body(gameRepository.save(updatedArticle))
         }.orElse(ResponseEntity.notFound().build())
 

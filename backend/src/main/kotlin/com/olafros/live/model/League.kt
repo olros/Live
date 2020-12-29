@@ -10,24 +10,24 @@ import javax.validation.constraints.Size
 @Entity
 @Table(name = "leagues")
 data class League(
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Long = 0,
-        var name: @NotBlank @Size(max = 128) String,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0,
+    var name: @NotBlank @Size(max = 128) String,
 
-        @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
-        @JoinTable(
-                name = "league_admins",
-                joinColumns = [JoinColumn(name = "league_id", referencedColumnName = "id")],
-                inverseJoinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")]
-        )
-        @JsonBackReference
-        @JsonIgnore
-        var admins: MutableList<User> = mutableListOf(),
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    @JoinTable(
+        name = "league_admins",
+        joinColumns = [JoinColumn(name = "league_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")]
+    )
+    @JsonBackReference
+    @JsonIgnore
+    var admins: MutableList<User> = mutableListOf(),
 
-        @OneToMany(mappedBy = "league", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-        @JsonManagedReference
-        var teams: MutableList<Team> = mutableListOf()
+    @OneToMany(mappedBy = "league", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var teams: MutableList<Team> = mutableListOf()
 )
 
 data class LeagueDto(val id: Long, val name: String, val teams: List<TeamDtoList>)

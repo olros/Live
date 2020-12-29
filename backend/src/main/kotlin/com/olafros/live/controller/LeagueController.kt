@@ -14,8 +14,8 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/league")
 class LeagueController(
-        val leagueRepository: LeagueRepository,
-        val securityService: SecurityService
+    val leagueRepository: LeagueRepository,
+    val securityService: SecurityService
 ) {
 
     @GetMapping
@@ -43,13 +43,17 @@ class LeagueController(
 
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(principal.username, #leagueId)")
-    fun updateLeagueById(@PathVariable(value = "id") leagueId: Long, @Valid @RequestBody newLeague: UpdateLeagueDto): ResponseEntity<*> {
+    fun updateLeagueById(
+        @PathVariable(value = "id") leagueId: Long,
+        @Valid @RequestBody newLeague: UpdateLeagueDto
+    ): ResponseEntity<*> {
         val league = leagueRepository.findById(leagueId)
         return if (league.isPresent) {
             val updatedLeague: League = league.get().copy(name = newLeague.name ?: league.get().name)
             ResponseEntity.ok().body(leagueRepository.save(updatedLeague).toLeagueDto())
         } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league to update"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body<Any>(MessageResponse("Could not find the league to update"))
         }
     }
 
@@ -61,7 +65,8 @@ class LeagueController(
             leagueRepository.delete(league.get())
             ResponseEntity.ok<Any>(MessageResponse("League successfully deleted"))
         } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league to delete"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body<Any>(MessageResponse("Could not find the league to delete"))
         }
     }
 }

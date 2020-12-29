@@ -22,16 +22,17 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/auth")
 class AuthController(
-        private val authenticationManager: AuthenticationManager,
-        private val userRepository: UserRepository,
-        private val encoder: PasswordEncoder,
-        private val jwtUtils: JwtUtils,
+    private val authenticationManager: AuthenticationManager,
+    private val userRepository: UserRepository,
+    private val encoder: PasswordEncoder,
+    private val jwtUtils: JwtUtils,
 ) {
 
     @PostMapping("/signin")
     fun authenticateUser(@RequestBody loginRequest: @Valid LoginRequest): ResponseEntity<*> {
         val authentication = authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password))
+            UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password)
+        )
         SecurityContextHolder.getContext().authentication = authentication
         val jwt = jwtUtils.generateJwtToken(authentication)
         return ResponseEntity.ok<Any>(JwtResponse(jwt))
@@ -41,8 +42,8 @@ class AuthController(
     fun registerUser(@RequestBody signUpRequest: @Valid CreateUserDto): ResponseEntity<*> {
         if (userRepository.existsByEmail(signUpRequest.email)) {
             return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body<Any>(MessageResponse("Email is already in use!"))
+                .status(HttpStatus.CONFLICT)
+                .body<Any>(MessageResponse("Email is already in use!"))
         }
 
         // Create new user's account

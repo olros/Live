@@ -7,9 +7,13 @@ import org.springframework.stereotype.Service
 @Service
 class SecurityService(val userRepository: UserRepository) {
 
-    fun getUser(email : String): User = userRepository.findByEmail(email)
+    fun getUser(email: String): User = userRepository.findByEmail(email)
 
     fun hasLeagueAccess(email: String, leagueId: Long): Boolean {
         return getUser(email).leagues.any { league -> league.id == leagueId }
+    }
+
+    fun hasTeamAccess(email: String, teamId: Long, leagueId: Long): Boolean {
+        return getUser(email).teams.any { team -> team.id == teamId } || hasLeagueAccess(email, leagueId)
     }
 }
