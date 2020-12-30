@@ -27,16 +27,25 @@ data class League(
 
     @OneToMany(mappedBy = "league", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JsonManagedReference
-    var teams: MutableList<Team> = mutableListOf()
+    var teams: MutableList<Team> = mutableListOf(),
+
+    @OneToMany(mappedBy = "league", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var seasons: MutableList<Season> = mutableListOf()
 )
 
-data class LeagueDto(val id: Long, val name: String, val teams: List<TeamDtoList>)
+data class LeagueDto(val id: Long, val name: String, val teams: List<TeamDtoList>, val seasons: List<SeasonDtoList>)
 data class LeagueDtoList(val id: Long, val name: String)
 data class CreateLeagueDto(val name: String)
 data class UpdateLeagueDto(val name: String?)
 
 fun League.toLeagueDto(): LeagueDto {
-    return LeagueDto(this.id, this.name, this.teams.map { team -> team.toTeamDtoList() })
+    return LeagueDto(
+        this.id,
+        this.name,
+        this.teams.map { team -> team.toTeamDtoList() },
+        this.seasons.map { season -> season.toSeasonDtoList() }
+    )
 }
 
 fun League.toLeagueDtoList(): LeagueDtoList {

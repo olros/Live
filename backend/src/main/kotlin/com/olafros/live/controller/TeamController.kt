@@ -30,7 +30,7 @@ class TeamController(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long
     ): ResponseEntity<*> {
-        val team = teamRepository.findByLeague_IdAndId(leagueId, teamId)
+        val team = teamRepository.findById(teamId)
         return if (team.isPresent) {
             ResponseEntity.ok(team.get().toTeamDto())
         } else {
