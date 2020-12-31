@@ -3,6 +3,8 @@ package com.olafros.live.model
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.olafros.live.security.authorize.SecurityService
+import org.springframework.security.authentication.AnonymousAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -39,13 +41,16 @@ data class CreateTeamDto(val name: String, val logo: String?, val description: S
 data class UpdateTeamDto(val name: String?, val logo: String?, val description: String?)
 
 fun Team.toTeamDto(): TeamDto {
-    val securityService = SecurityService()
+    val auth = SecurityContextHolder.getContext().authentication
+    val isAdmin = if (auth != null && auth !is AnonymousAuthenticationToken) {
+        this.admins.any { user -> user.email == auth.name } || this.league.admins.any { user -> user.email == auth.name }
+    } else false
     return TeamDto(
         this.id,
         this.name,
         this.logo.orEmpty(),
         this.description,
-        securityService.hasTeamAccess(this.id, this.league.id)
+        isAdmin,
     )
 }
 

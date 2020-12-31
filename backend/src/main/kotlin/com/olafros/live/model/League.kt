@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.olafros.live.security.authorize.SecurityService
+import org.springframework.security.authentication.AnonymousAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
+import java.util.*
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -49,13 +52,16 @@ data class UpdateLeagueDto(val name: String?)
 data class AddLeagueAdminDto(val email: String)
 
 fun League.toLeagueDto(): LeagueDto {
-    val securityService = SecurityService()
+    val auth = SecurityContextHolder.getContext().authentication
+    val isAdmin = if (auth != null && auth !is AnonymousAuthenticationToken) {
+        this.admins.any { user -> user.email == auth.name }
+    } else false
     return LeagueDto(
         this.id,
         this.name,
         this.teams.map { team -> team.toTeamDtoList() },
         this.seasons.map { season -> season.toSeasonDtoList() },
-        securityService.hasLeagueAccess(this.id),
+        isAdmin,
     )
 }
 

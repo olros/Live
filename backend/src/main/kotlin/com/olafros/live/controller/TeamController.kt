@@ -41,13 +41,15 @@ class TeamController(
     @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
     fun createNewTeam(
         @PathVariable leagueId: Long,
-        @Valid @RequestBody team: CreateTeamDto,
+        @Valid @RequestBody newTeam: CreateTeamDto,
     ): ResponseEntity<*> {
         val league = leagueRepository.findById(leagueId)
         return if (!league.isPresent) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
+        } else if (league.get().teams.any { team -> team.name == newTeam.name }) {
+            ResponseEntity.status(HttpStatus.CONFLICT).body<Any>(MessageResponse("This league already contains a team with this name"))
         } else {
-            val newTeam = Team(0, team.name, team.logo, team.description, mutableListOf(), league.get())
+            val newTeam = Team(0, newTeam.name, newTeam.logo, newTeam.description, mutableListOf(), league.get())
             ResponseEntity.ok().body(teamRepository.save(newTeam).toTeamDto())
         }
     }
