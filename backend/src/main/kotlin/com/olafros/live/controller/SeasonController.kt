@@ -12,7 +12,7 @@ import java.security.Principal
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/league/{leagueId}/season")
+@RequestMapping("/api/leagues/{leagueId}/seasons")
 class SeasonController(
     val seasonRepository: SeasonRepository,
     val leagueRepository: LeagueRepository

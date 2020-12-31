@@ -13,7 +13,7 @@ import java.security.Principal
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/league/{leagueId}/team")
+@RequestMapping("/api/leagues/{leagueId}/teams")
 class TeamController(
     val teamRepository: TeamRepository,
     val leagueRepository: LeagueRepository,

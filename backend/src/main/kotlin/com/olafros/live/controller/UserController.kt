@@ -13,7 +13,7 @@ import java.security.Principal
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 class UserController(val userRepository: UserRepository, val securityService: SecurityService) {
 
     @GetMapping

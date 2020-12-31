@@ -38,6 +38,7 @@ data class LeagueDto(val id: Long, val name: String, val teams: List<TeamDtoList
 data class LeagueDtoList(val id: Long, val name: String)
 data class CreateLeagueDto(val name: String)
 data class UpdateLeagueDto(val name: String?)
+data class AddLeagueAdminDto(val userId: Long)
 
 fun League.toLeagueDto(): LeagueDto {
     return LeagueDto(
