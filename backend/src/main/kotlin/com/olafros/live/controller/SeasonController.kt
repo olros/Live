@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import java.security.Principal
 import javax.validation.Valid
 
 @RestController
@@ -37,11 +36,10 @@ class SeasonController(
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(principal.username, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
     fun createNewSeason(
         @PathVariable leagueId: Long,
         @Valid @RequestBody season: CreateSeasonDto,
-        principal: Principal
     ): ResponseEntity<*> {
         val league = leagueRepository.findById(leagueId)
         return if (league.isPresent) {
@@ -54,7 +52,7 @@ class SeasonController(
     }
 
     @PutMapping("/{seasonId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(principal.username, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
     fun updateSeasonById(
         @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,
@@ -73,7 +71,7 @@ class SeasonController(
     }
 
     @DeleteMapping("/{seasonId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(principal.username, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
     fun deleteSeasonById(
         @PathVariable leagueId: Long,
         @PathVariable seasonId: Long

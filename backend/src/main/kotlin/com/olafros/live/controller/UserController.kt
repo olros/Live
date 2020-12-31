@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import java.security.Principal
 import javax.validation.Valid
 
 @RestController
@@ -19,8 +18,8 @@ class UserController(val userRepository: UserRepository, val securityService: Se
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    fun getUser(principal: Principal): ResponseEntity<*> {
-        val user = securityService.getUser(principal.name)
+    fun getUser(): ResponseEntity<*> {
+        val user = securityService.getUser()
         return if (user.isPresent) ResponseEntity.ok(
             user.get().toUserDto()
         ) else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
@@ -28,8 +27,8 @@ class UserController(val userRepository: UserRepository, val securityService: Se
 
     @PutMapping
     @PreAuthorize("isAuthenticated()")
-    fun registerUser(@RequestBody updatedUser: @Valid UpdateUserDto, principal: Principal): ResponseEntity<*> {
-        val existingUser = securityService.getUser(principal.name)
+    fun registerUser(@RequestBody updatedUser: @Valid UpdateUserDto): ResponseEntity<*> {
+        val existingUser = securityService.getUser()
         return if (existingUser.isPresent) {
             val user: User = existingUser.get().copy(name = updatedUser.name ?: existingUser.get().name)
             userRepository.save<User>(user)

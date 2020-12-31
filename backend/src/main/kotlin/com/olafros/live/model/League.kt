@@ -3,6 +3,7 @@ package com.olafros.live.model
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
+import com.olafros.live.security.authorize.SecurityService
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -47,13 +48,14 @@ data class CreateLeagueDto(val name: String)
 data class UpdateLeagueDto(val name: String?)
 data class AddLeagueAdminDto(val email: String)
 
-fun League.toLeagueDto(isAdmin: Boolean?): LeagueDto {
+fun League.toLeagueDto(): LeagueDto {
+    val securityService = SecurityService()
     return LeagueDto(
         this.id,
         this.name,
         this.teams.map { team -> team.toTeamDtoList() },
         this.seasons.map { season -> season.toSeasonDtoList() },
-        isAdmin ?: false,
+        securityService.hasLeagueAccess(this.id),
     )
 }
 

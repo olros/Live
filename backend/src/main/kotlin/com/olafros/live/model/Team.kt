@@ -2,6 +2,7 @@ package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.olafros.live.security.authorize.SecurityService
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -37,8 +38,15 @@ data class TeamDtoList(val id: Long, val name: String, val logo: String, val des
 data class CreateTeamDto(val name: String, val logo: String?, val description: String)
 data class UpdateTeamDto(val name: String?, val logo: String?, val description: String?)
 
-fun Team.toTeamDto(isAdmin: Boolean?): TeamDto {
-    return TeamDto(this.id, this.name, this.logo.orEmpty(), this.description, isAdmin ?: false)
+fun Team.toTeamDto(): TeamDto {
+    val securityService = SecurityService()
+    return TeamDto(
+        this.id,
+        this.name,
+        this.logo.orEmpty(),
+        this.description,
+        securityService.hasTeamAccess(this.id, this.league.id)
+    )
 }
 
 fun Team.toTeamDtoList(): TeamDtoList {

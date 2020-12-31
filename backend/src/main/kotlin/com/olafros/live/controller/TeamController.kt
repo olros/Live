@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import java.security.Principal
 import javax.validation.Valid
 
 @RestController
@@ -29,35 +28,32 @@ class TeamController(
     fun getTeamById(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,
-        principal: Principal?
     ): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         return if (team.isPresent) {
-            val isAdmin = principal != null && securityService.hasTeamAccess(principal.name, teamId, leagueId)
-            ResponseEntity.ok(team.get().toTeamDto(isAdmin))
+            ResponseEntity.ok(team.get().toTeamDto())
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
         }
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(principal.username, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
     fun createNewTeam(
         @PathVariable leagueId: Long,
         @Valid @RequestBody team: CreateTeamDto,
-        principal: Principal
     ): ResponseEntity<*> {
         val league = leagueRepository.findById(leagueId)
         return if (!league.isPresent) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
         } else {
             val newTeam = Team(0, team.name, team.logo, team.description, mutableListOf(), league.get())
-            ResponseEntity.ok().body(teamRepository.save(newTeam).toTeamDto(true))
+            ResponseEntity.ok().body(teamRepository.save(newTeam).toTeamDto())
         }
     }
 
     @PutMapping("/{teamId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(principal.username, #teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
     fun updateTeamById(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,
@@ -70,14 +66,14 @@ class TeamController(
                 logo = newTeam.logo,
                 description = newTeam.description ?: team.get().description,
             )
-            ResponseEntity.ok().body(teamRepository.save(updatedTeam).toTeamDto(true))
+            ResponseEntity.ok().body(teamRepository.save(updatedTeam).toTeamDto())
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team to update"))
         }
     }
 
     @DeleteMapping("/{teamId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(principal.username, #teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
     fun deleteTeamById(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long
@@ -96,7 +92,7 @@ class TeamController(
     }
 
     @GetMapping("/{teamId}/admins")
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(principal.username, #teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
     fun getAllTeamAdmins(@PathVariable leagueId: Long, @PathVariable teamId: Long): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         return if (!team.isPresent) {
@@ -107,7 +103,7 @@ class TeamController(
     }
 
     @PostMapping("/{teamId}/admins")
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(principal.username, #teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
     fun addTeamAdmin(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,
@@ -131,7 +127,7 @@ class TeamController(
     }
 
     @DeleteMapping("/{teamId}/admins/{adminId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(principal.username, #teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
     fun deleteTeamAdmin(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,
