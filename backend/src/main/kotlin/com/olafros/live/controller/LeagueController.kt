@@ -37,10 +37,12 @@ class LeagueController(
     @PreAuthorize("isAuthenticated()")
     fun createNewLeague(@Valid @RequestBody league: CreateLeagueDto, principal: Principal): ResponseEntity<*> {
         val user = securityService.getUser(principal.name)
-        val admins: MutableList<User> = mutableListOf()
-        admins.add(user)
-        val newLeague = League(0, league.name, admins)
-        return ResponseEntity.ok().body(leagueRepository.save(newLeague).toLeagueDto())
+        return if (user.isPresent) {
+            val admins: MutableList<User> = mutableListOf()
+            admins.add(user.get())
+            val newLeague = League(0, league.name, admins)
+            ResponseEntity.ok().body(leagueRepository.save(newLeague).toLeagueDto())
+        } else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
     }
 
     @PutMapping("/{leagueId}")
@@ -94,7 +96,7 @@ class LeagueController(
         @Valid @RequestBody newAdmin: AddLeagueAdminDto
     ): ResponseEntity<*> {
         val league = leagueRepository.findById(leagueId)
-        val user = userRepository.findById(newAdmin.userId)
+        val user = securityService.getUser(newAdmin.email)
         return if (!league.isPresent) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
         } else if (!user.isPresent) {

@@ -46,14 +46,11 @@ class TeamController(
         principal: Principal
     ): ResponseEntity<*> {
         val league = leagueRepository.findById(leagueId)
-        return if (league.isPresent) {
-            val user = securityService.getUser(principal.name)
-            val admins: MutableList<User> = mutableListOf()
-            admins.add(user)
-            val newTeam = Team(0, team.name, team.logo, team.description, admins, league.get())
-            ResponseEntity.ok().body(teamRepository.save(newTeam).toTeamDto())
-        } else {
+        return if (!league.isPresent) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
+        } else {
+            val newTeam = Team(0, team.name, team.logo, team.description, mutableListOf(), league.get())
+            ResponseEntity.ok().body(teamRepository.save(newTeam).toTeamDto())
         }
     }
 

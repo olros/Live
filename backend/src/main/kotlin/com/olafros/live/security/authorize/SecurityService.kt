@@ -17,6 +17,9 @@ class SecurityService(val userRepository: UserRepository) {
 
     fun hasTeamAccess(email: String, teamId: Long, leagueId: Long): Boolean {
         val user = getUser(email)
-        return if (user.isPresent) user.get().teams.any { team -> team.id == teamId } else hasLeagueAccess(email, leagueId)
+        return if (user.isPresent) user.get().teams.any { team -> team.id == teamId } else hasLeagueAccess(
+            email,
+            leagueId
+        )
     }
 }
