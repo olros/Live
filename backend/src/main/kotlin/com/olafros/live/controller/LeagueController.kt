@@ -24,10 +24,11 @@ class LeagueController(
     fun getAllLeagues(): List<LeagueDtoList> = leagueRepository.findAll().map { league -> league.toLeagueDtoList() }
 
     @GetMapping("/{leagueId}")
-    fun getLeagueById(@PathVariable leagueId: Long): ResponseEntity<*> {
+    fun getLeagueById(@PathVariable leagueId: Long, principal: Principal?): ResponseEntity<*> {
         val league = leagueRepository.findById(leagueId)
         return if (league.isPresent) {
-            ResponseEntity.ok(league.get().toLeagueDto())
+            val isAdmin = principal != null && securityService.hasLeagueAccess(principal.name, leagueId)
+            ResponseEntity.ok(league.get().toLeagueDto(isAdmin))
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
         }
@@ -41,7 +42,7 @@ class LeagueController(
             val admins: MutableList<User> = mutableListOf()
             admins.add(user.get())
             val newLeague = League(0, league.name, admins)
-            ResponseEntity.ok().body(leagueRepository.save(newLeague).toLeagueDto())
+            ResponseEntity.ok().body(leagueRepository.save(newLeague).toLeagueDto(true))
         } else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
     }
 
@@ -54,7 +55,7 @@ class LeagueController(
         val league = leagueRepository.findById(leagueId)
         return if (league.isPresent) {
             val updatedLeague: League = league.get().copy(name = newLeague.name ?: league.get().name)
-            ResponseEntity.ok().body(leagueRepository.save(updatedLeague).toLeagueDto())
+            ResponseEntity.ok().body(leagueRepository.save(updatedLeague).toLeagueDto(true))
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body<Any>(MessageResponse("Could not find the league to update"))

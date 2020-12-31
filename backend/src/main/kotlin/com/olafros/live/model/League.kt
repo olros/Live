@@ -34,18 +34,26 @@ data class League(
     var seasons: MutableList<Season> = mutableListOf()
 )
 
-data class LeagueDto(val id: Long, val name: String, val teams: List<TeamDtoList>, val seasons: List<SeasonDtoList>)
+data class LeagueDto(
+    val id: Long,
+    val name: String,
+    val teams: List<TeamDtoList>,
+    val seasons: List<SeasonDtoList>,
+    val isAdmin: Boolean
+)
+
 data class LeagueDtoList(val id: Long, val name: String)
 data class CreateLeagueDto(val name: String)
 data class UpdateLeagueDto(val name: String?)
 data class AddLeagueAdminDto(val email: String)
 
-fun League.toLeagueDto(): LeagueDto {
+fun League.toLeagueDto(isAdmin: Boolean?): LeagueDto {
     return LeagueDto(
         this.id,
         this.name,
         this.teams.map { team -> team.toTeamDtoList() },
-        this.seasons.map { season -> season.toSeasonDtoList() }
+        this.seasons.map { season -> season.toSeasonDtoList() },
+        isAdmin ?: false,
     )
 }
 

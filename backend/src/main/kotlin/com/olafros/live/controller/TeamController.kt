@@ -28,11 +28,13 @@ class TeamController(
     @GetMapping("/{teamId}")
     fun getTeamById(
         @PathVariable leagueId: Long,
-        @PathVariable teamId: Long
+        @PathVariable teamId: Long,
+        principal: Principal?
     ): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         return if (team.isPresent) {
-            ResponseEntity.ok(team.get().toTeamDto())
+            val isAdmin = principal != null && securityService.hasTeamAccess(principal.name, teamId, leagueId)
+            ResponseEntity.ok(team.get().toTeamDto(isAdmin))
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
         }
@@ -50,7 +52,7 @@ class TeamController(
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
         } else {
             val newTeam = Team(0, team.name, team.logo, team.description, mutableListOf(), league.get())
-            ResponseEntity.ok().body(teamRepository.save(newTeam).toTeamDto())
+            ResponseEntity.ok().body(teamRepository.save(newTeam).toTeamDto(true))
         }
     }
 
@@ -68,7 +70,7 @@ class TeamController(
                 logo = newTeam.logo,
                 description = newTeam.description ?: team.get().description,
             )
-            ResponseEntity.ok().body(teamRepository.save(updatedTeam).toTeamDto())
+            ResponseEntity.ok().body(teamRepository.save(updatedTeam).toTeamDto(true))
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team to update"))
         }
@@ -86,6 +88,69 @@ class TeamController(
             ResponseEntity.ok<Any>(MessageResponse("Team successfully deleted"))
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team to delete"))
+        }
+    }
+
+    fun getTeamAdminsList(team: Team): List<UserDtoList> {
+        return team.admins.map { user -> user.toUserDtoList() }
+    }
+
+    @GetMapping("/{teamId}/admins")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(principal.username, #teamId, #leagueId)")
+    fun getAllTeamAdmins(@PathVariable leagueId: Long, @PathVariable teamId: Long): ResponseEntity<*> {
+        val team = teamRepository.findById(teamId)
+        return if (!team.isPresent) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
+        } else {
+            ResponseEntity.ok().body(getTeamAdminsList(team.get()))
+        }
+    }
+
+    @PostMapping("/{teamId}/admins")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(principal.username, #teamId, #leagueId)")
+    fun addTeamAdmin(
+        @PathVariable leagueId: Long,
+        @PathVariable teamId: Long,
+        @Valid @RequestBody newAdmin: AddLeagueAdminDto
+    ): ResponseEntity<*> {
+        val team = teamRepository.findById(teamId)
+        val user = securityService.getUser(newAdmin.email)
+        return if (!team.isPresent) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
+        } else if (!user.isPresent) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body<Any>(MessageResponse("Could not find the user to add as admin"))
+        } else if (team.get().admins.any { admin -> admin.id == user.get().id }) {
+            ResponseEntity.status(HttpStatus.CONFLICT).body<Any>(MessageResponse("The user is already admin"))
+        } else {
+            val updatedTeam: Team = team.get()
+            updatedTeam.admins.add(user.get())
+            teamRepository.save(updatedTeam)
+            ResponseEntity.ok().body(getTeamAdminsList(updatedTeam))
+        }
+    }
+
+    @DeleteMapping("/{teamId}/admins/{adminId}")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(principal.username, #teamId, #leagueId)")
+    fun deleteTeamAdmin(
+        @PathVariable leagueId: Long,
+        @PathVariable teamId: Long,
+        @PathVariable adminId: Long
+    ): ResponseEntity<*> {
+        val team = teamRepository.findById(teamId)
+        return if (!team.isPresent) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
+        } else {
+            val user = team.get().admins.find { user -> user.id == adminId }
+            if (user != null) {
+                val updatedTeam = team.get()
+                updatedTeam.admins.remove(user)
+                teamRepository.save(updatedTeam)
+                ResponseEntity.ok().body(getTeamAdminsList(updatedTeam))
+            } else {
+                ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body<Any>(MessageResponse("Could not find the user to remove as admin"))
+            }
         }
     }
 }
