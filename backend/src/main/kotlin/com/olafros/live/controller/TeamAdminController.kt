@@ -25,7 +25,7 @@ class TeamAdminController(
     }
 
     @GetMapping
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun getAllTeamAdmins(@PathVariable leagueId: Long, @PathVariable teamId: Long): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         return if (!team.isPresent) {
@@ -36,7 +36,7 @@ class TeamAdminController(
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun addTeamAdmin(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,
@@ -60,7 +60,7 @@ class TeamAdminController(
     }
 
     @DeleteMapping("/{adminId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun deleteTeamAdmin(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,

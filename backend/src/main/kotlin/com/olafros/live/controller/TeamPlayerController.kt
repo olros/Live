@@ -36,7 +36,7 @@ class TeamPlayerController(
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun addTeamPlayer(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,
@@ -52,7 +52,7 @@ class TeamPlayerController(
     }
 
     @PutMapping("/{playerId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun updateTeamPlayer(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,

@@ -17,7 +17,7 @@ import javax.validation.Valid
 class UserController(val userRepository: UserRepository, val securityService: SecurityService) {
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and @securityService.hasUserAccess()")
     fun getUser(): ResponseEntity<*> {
         val user = securityService.getUser()
         return if (user.isPresent)
@@ -27,7 +27,7 @@ class UserController(val userRepository: UserRepository, val securityService: Se
     }
 
     @PutMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and @securityService.hasUserAccess()")
     fun registerUser(@RequestBody updatedUser: @Valid UpdateUserDto): ResponseEntity<*> {
         val existingUser = securityService.getUser()
         return if (existingUser.isPresent) {

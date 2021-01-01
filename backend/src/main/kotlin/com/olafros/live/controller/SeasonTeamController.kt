@@ -2,8 +2,6 @@ package com.olafros.live.controller
 
 import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
-import com.olafros.live.repository.FixtureRepository
-import com.olafros.live.repository.LeagueRepository
 import com.olafros.live.repository.SeasonRepository
 import com.olafros.live.repository.TeamRepository
 import org.springframework.http.HttpStatus
@@ -16,7 +14,6 @@ import javax.validation.Valid
 @RequestMapping("/api/leagues/{leagueId}/seasons/{seasonId}/teams")
 class SeasonTeamController(
     val seasonRepository: SeasonRepository,
-    val fixtureRepository: FixtureRepository,
     val teamRepository: TeamRepository,
 ) {
 
@@ -28,7 +25,7 @@ class SeasonTeamController(
     fun isValidTeam(team: Team, league: League): Boolean = team.league.id == league.id
 
     @PostMapping
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun addNewTeam(
         @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,
@@ -53,7 +50,7 @@ class SeasonTeamController(
     }
 
     @DeleteMapping("/{teamId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun deleteTeamById(
         @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,

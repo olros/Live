@@ -3,7 +3,6 @@ package com.olafros.live.controller
 import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.FixtureRepository
-import com.olafros.live.repository.LeagueRepository
 import com.olafros.live.repository.SeasonRepository
 import com.olafros.live.repository.TeamRepository
 import org.springframework.http.HttpStatus
@@ -42,7 +41,7 @@ class SeasonFixtureController(
     fun isValidTeam(team: Team, season: Season): Boolean = team.seasons.any { s -> s.id == season.id }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun createNewFixture(
         @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,
@@ -80,7 +79,7 @@ class SeasonFixtureController(
     }
 
     @PutMapping("/{fixtureId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun updateSeasonById(
         @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,
@@ -120,7 +119,7 @@ class SeasonFixtureController(
     }
 
     @DeleteMapping("/{fixtureId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun deleteFixtureById(
         @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,

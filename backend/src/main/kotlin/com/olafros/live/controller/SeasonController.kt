@@ -52,7 +52,7 @@ class SeasonController(
     }
 
     @PutMapping("/{seasonId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun updateSeasonById(
         @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,
@@ -71,7 +71,7 @@ class SeasonController(
     }
 
     @DeleteMapping("/{seasonId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun deleteSeasonById(
         @PathVariable leagueId: Long,
         @PathVariable seasonId: Long

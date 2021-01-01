@@ -54,7 +54,7 @@ class TeamController(
     }
 
     @PutMapping("/{teamId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun updateTeamById(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,
@@ -74,7 +74,7 @@ class TeamController(
     }
 
     @DeleteMapping("/{teamId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId, #leagueId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun deleteTeamById(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long
