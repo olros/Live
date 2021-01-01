@@ -20,9 +20,10 @@ class UserController(val userRepository: UserRepository, val securityService: Se
     @PreAuthorize("isAuthenticated()")
     fun getUser(): ResponseEntity<*> {
         val user = securityService.getUser()
-        return if (user.isPresent) ResponseEntity.ok(
-            user.get().toUserDto()
-        ) else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
+        return if (user.isPresent)
+            ResponseEntity.ok(user.get().toUserDto())
+        else
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
     }
 
     @PutMapping

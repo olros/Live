@@ -27,8 +27,12 @@ class TeamPlayerController(
         @PathVariable leagueId: Long,
         @PathVariable teamId: Long,
         @PathVariable playerId: Long
-    ): PlayerDto {
-        return playerRepository.findById(playerId).get().toPlayerDto()
+    ): ResponseEntity<*> {
+        val player = playerRepository.findById(playerId)
+        return if (player.isPresent)
+            ResponseEntity.ok(player.get().toPlayerDto())
+        else
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
     }
 
     @PostMapping
