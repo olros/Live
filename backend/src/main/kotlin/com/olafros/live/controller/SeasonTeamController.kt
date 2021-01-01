@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/leagues/{leagueId}/seasons/{seasonId}/teams")
+@RequestMapping("/api/seasons/{seasonId}/teams")
 class SeasonTeamController(
     val seasonRepository: SeasonRepository,
     val teamRepository: TeamRepository,
 ) {
 
     @GetMapping
-    fun getAllTeams(@PathVariable leagueId: Long, @PathVariable seasonId: Long): List<TeamDtoList> {
+    fun getAllTeams(@PathVariable seasonId: Long): List<TeamDtoList> {
         return teamRepository.findAllBySeasonsContains(seasonId).map { team -> team.toTeamDtoList() }
     }
 
@@ -27,7 +27,6 @@ class SeasonTeamController(
     @PostMapping
     @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun addNewTeam(
-        @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,
         @Valid @RequestBody team: AddSeasonTeamDto,
     ): ResponseEntity<*> {
@@ -52,7 +51,6 @@ class SeasonTeamController(
     @DeleteMapping("/{teamId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun deleteTeamById(
-        @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,
         @PathVariable teamId: Long,
     ): ResponseEntity<*> {

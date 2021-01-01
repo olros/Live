@@ -55,7 +55,7 @@ data class TeamDto(
 )
 
 data class TeamDtoList(val id: Long, val name: String, val logo: String, val description: String)
-data class CreateTeamDto(val name: String, val logo: String?, val description: String)
+data class CreateTeamDto(val name: String, val logo: String?, val description: String, val leagueId: Long)
 data class UpdateTeamDto(val name: String?, val logo: String?, val description: String?)
 
 fun Team.toTeamDto(): TeamDto {

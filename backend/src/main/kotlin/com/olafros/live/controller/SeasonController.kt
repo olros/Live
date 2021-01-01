@@ -4,6 +4,7 @@ import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.LeagueRepository
 import com.olafros.live.repository.SeasonRepository
+import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -11,22 +12,15 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/leagues/{leagueId}/seasons")
+@RequestMapping("/api/seasons")
 class SeasonController(
     val seasonRepository: SeasonRepository,
-    val leagueRepository: LeagueRepository
+    val leagueRepository: LeagueRepository,
+    val securityService: SecurityService,
 ) {
 
-    @GetMapping
-    fun getAllSeasons(@PathVariable leagueId: Long): List<SeasonDtoList> {
-        return seasonRepository.findAllByLeague_Id(leagueId).map { season -> season.toSeasonDtoList() }
-    }
-
     @GetMapping("/{seasonId}")
-    fun getSeasonById(
-        @PathVariable leagueId: Long,
-        @PathVariable seasonId: Long
-    ): ResponseEntity<*> {
+    fun getSeasonById(@PathVariable seasonId: Long): ResponseEntity<*> {
         val season = seasonRepository.findById(seasonId)
         return if (season.isPresent) {
             ResponseEntity.ok(season.get().toSeasonDto())
@@ -36,25 +30,25 @@ class SeasonController(
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
-    fun createNewSeason(
-        @PathVariable leagueId: Long,
-        @Valid @RequestBody season: CreateSeasonDto,
-    ): ResponseEntity<*> {
-        val league = leagueRepository.findById(leagueId)
-        return if (league.isPresent) {
+    @PreAuthorize("isAuthenticated()")
+    fun createNewSeason(@Valid @RequestBody season: CreateSeasonDto): ResponseEntity<*> {
+        if (securityService.hasLeagueAccess(season.leagueId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body<Any>(MessageResponse("You're not allowed to create a season in this league"))
+        }
+        val league = leagueRepository.findById(season.leagueId)
+        return if (!league.isPresent) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
+        } else {
             val teams: MutableList<Team> = mutableListOf()
             val newSeason = Season(0, season.name, teams, league.get())
             ResponseEntity.ok().body(seasonRepository.save(newSeason).toSeasonDto())
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
         }
     }
 
     @PutMapping("/{seasonId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun updateSeasonById(
-        @PathVariable leagueId: Long,
         @PathVariable seasonId: Long,
         @Valid @RequestBody newSeason: UpdateSeasonDto
     ): ResponseEntity<*> {
@@ -73,7 +67,6 @@ class SeasonController(
     @DeleteMapping("/{seasonId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
     fun deleteSeasonById(
-        @PathVariable leagueId: Long,
         @PathVariable seasonId: Long
     ): ResponseEntity<*> {
         val season = seasonRepository.findById(seasonId)

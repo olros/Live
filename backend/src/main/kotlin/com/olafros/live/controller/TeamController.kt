@@ -1,9 +1,13 @@
 package com.olafros.live.controller
 
-import com.olafros.live.model.*
+import com.olafros.live.model.CreateTeamDto
+import com.olafros.live.model.Team
+import com.olafros.live.model.UpdateTeamDto
+import com.olafros.live.model.toTeamDto
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.LeagueRepository
 import com.olafros.live.repository.TeamRepository
+import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -11,22 +15,15 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/leagues/{leagueId}/teams")
+@RequestMapping("/api/teams")
 class TeamController(
     val teamRepository: TeamRepository,
     val leagueRepository: LeagueRepository,
+    val securityService: SecurityService,
 ) {
 
-    @GetMapping
-    fun getAllTeams(@PathVariable leagueId: Long): List<TeamDtoList> {
-        return teamRepository.findAllByLeague_Id(leagueId).map { team -> team.toTeamDtoList() }
-    }
-
     @GetMapping("/{teamId}")
-    fun getTeamById(
-        @PathVariable leagueId: Long,
-        @PathVariable teamId: Long,
-    ): ResponseEntity<*> {
+    fun getTeamById(@PathVariable teamId: Long): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         return if (team.isPresent) {
             ResponseEntity.ok(team.get().toTeamDto())
@@ -37,11 +34,12 @@ class TeamController(
 
     @PostMapping
     @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
-    fun createNewTeam(
-        @PathVariable leagueId: Long,
-        @Valid @RequestBody newTeam: CreateTeamDto,
-    ): ResponseEntity<*> {
-        val league = leagueRepository.findById(leagueId)
+    fun createNewTeam(@Valid @RequestBody newTeam: CreateTeamDto): ResponseEntity<*> {
+        if (securityService.hasLeagueAccess(newTeam.leagueId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body<Any>(MessageResponse("You're not allowed to create a team in this league"))
+        }
+        val league = leagueRepository.findById(newTeam.leagueId)
         return if (!league.isPresent) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
         } else if (league.get().teams.any { team -> team.name == newTeam.name }) {
@@ -55,11 +53,7 @@ class TeamController(
 
     @PutMapping("/{teamId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
-    fun updateTeamById(
-        @PathVariable leagueId: Long,
-        @PathVariable teamId: Long,
-        @Valid @RequestBody newTeam: UpdateTeamDto
-    ): ResponseEntity<*> {
+    fun updateTeamById(@PathVariable teamId: Long, @Valid @RequestBody newTeam: UpdateTeamDto): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         return if (team.isPresent) {
             val updatedTeam: Team = team.get().copy(
@@ -75,10 +69,7 @@ class TeamController(
 
     @DeleteMapping("/{teamId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
-    fun deleteTeamById(
-        @PathVariable leagueId: Long,
-        @PathVariable teamId: Long
-    ): ResponseEntity<*> {
+    fun deleteTeamById(@PathVariable teamId: Long): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         return if (team.isPresent) {
             teamRepository.delete(team.get())

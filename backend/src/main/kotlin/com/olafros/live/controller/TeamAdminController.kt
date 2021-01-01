@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/leagues/{leagueId}/teams/{teamId}/admins")
+@RequestMapping("/api/teams/{teamId}/admins")
 class TeamAdminController(
     val teamRepository: TeamRepository,
     val securityService: SecurityService
@@ -26,7 +26,7 @@ class TeamAdminController(
 
     @GetMapping
     @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
-    fun getAllTeamAdmins(@PathVariable leagueId: Long, @PathVariable teamId: Long): ResponseEntity<*> {
+    fun getAllTeamAdmins(@PathVariable teamId: Long): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         return if (!team.isPresent) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
@@ -37,11 +37,7 @@ class TeamAdminController(
 
     @PostMapping
     @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
-    fun addTeamAdmin(
-        @PathVariable leagueId: Long,
-        @PathVariable teamId: Long,
-        @Valid @RequestBody newAdmin: AddLeagueAdminDto
-    ): ResponseEntity<*> {
+    fun addTeamAdmin(@PathVariable teamId: Long, @Valid @RequestBody newAdmin: AddLeagueAdminDto): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         val user = securityService.getUser(newAdmin.email)
         return if (!team.isPresent) {
@@ -61,11 +57,7 @@ class TeamAdminController(
 
     @DeleteMapping("/{adminId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
-    fun deleteTeamAdmin(
-        @PathVariable leagueId: Long,
-        @PathVariable teamId: Long,
-        @PathVariable adminId: Long
-    ): ResponseEntity<*> {
+    fun deleteTeamAdmin(@PathVariable teamId: Long, @PathVariable adminId: Long): ResponseEntity<*> {
         val team = teamRepository.findById(teamId)
         return if (!team.isPresent) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))

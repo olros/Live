@@ -3,6 +3,7 @@ package com.olafros.live.security.authorize
 import com.olafros.live.model.Season
 import com.olafros.live.model.Team
 import com.olafros.live.model.User
+import com.olafros.live.repository.FixtureRepository
 import com.olafros.live.repository.SeasonRepository
 import com.olafros.live.repository.TeamRepository
 import com.olafros.live.repository.UserRepository
@@ -16,6 +17,7 @@ class SecurityService(
     val userRepository: UserRepository,
     val seasonRepository: SeasonRepository,
     val teamRepository: TeamRepository,
+    val fixtureRepository: FixtureRepository,
 ) {
 
     fun getUser(): Optional<User> {
@@ -47,16 +49,25 @@ class SecurityService(
         val season = seasonRepository.findById(seasonId)
         return if (season.isPresent && user.isPresent) checkSeasonAccess(season.get(), user.get()) else false
     }
+
+    fun hasFixtureAccess(fixtureId: Long): Boolean {
+        val user = getUser()
+        val fixture = fixtureRepository.findById(fixtureId)
+        return if (fixture.isPresent && user.isPresent) checkSeasonAccess(fixture.get().season, user.get()) else false
+    }
+
+    companion object {
+        fun checkLeagueAccess(leagueId: Long, user: User): Boolean {
+            return user.leagues.any { league -> league.id == leagueId }
+        }
+
+        fun checkTeamAccess(team: Team, user: User): Boolean {
+            return user.teams.any { t -> t.id == team.id } || checkLeagueAccess(team.league.id, user)
+        }
+
+        fun checkSeasonAccess(season: Season, user: User): Boolean {
+            return checkLeagueAccess(season.league.id, user)
+        }
+    }
 }
 
-fun SecurityService.checkLeagueAccess(leagueId: Long, user: User): Boolean {
-    return user.leagues.any { league -> league.id == leagueId }
-}
-
-fun SecurityService.checkTeamAccess(team: Team, user: User): Boolean {
-    return user.teams.any { t -> t.id == team.id } || hasLeagueAccess(team.league.id)
-}
-
-fun SecurityService.checkSeasonAccess(season: Season, user: User): Boolean {
-    return checkLeagueAccess(season.league.id, user)
-}

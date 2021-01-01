@@ -38,7 +38,7 @@ data class Season(
 
 data class SeasonDto(val id: Long, val name: String, val teams: List<TeamDtoList>)
 data class SeasonDtoList(val id: Long, val name: String)
-data class CreateSeasonDto(val name: String)
+data class CreateSeasonDto(val name: String, val leagueId: Long)
 data class UpdateSeasonDto(val name: String?)
 data class AddSeasonTeamDto(val teamId: Long)
 

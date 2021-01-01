@@ -5,6 +5,7 @@ import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.FixtureRepository
 import com.olafros.live.repository.SeasonRepository
 import com.olafros.live.repository.TeamRepository
+import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -12,24 +13,21 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/leagues/{leagueId}/seasons/{seasonId}/fixtures")
-class SeasonFixtureController(
+@RequestMapping("/api/fixtures")
+class FixtureController(
     val seasonRepository: SeasonRepository,
     val fixtureRepository: FixtureRepository,
     val teamRepository: TeamRepository,
+    val securityService: SecurityService,
 ) {
 
     @GetMapping
-    fun getAllFixtures(@PathVariable leagueId: Long, @PathVariable seasonId: Long): List<FixtureDtoList> {
-        return fixtureRepository.findAllBySeason_Id(seasonId).map { fixture -> fixture.toFixtureDtoList() }
+    fun getAllFixtures(): List<FixtureDtoList> {
+        return fixtureRepository.findAll().map { fixture -> fixture.toFixtureDtoList() }
     }
 
     @GetMapping("/{fixtureId}")
-    fun getFixtureById(
-        @PathVariable leagueId: Long,
-        @PathVariable seasonId: Long,
-        @PathVariable fixtureId: Long,
-    ): ResponseEntity<*> {
+    fun getFixtureById(@PathVariable fixtureId: Long): ResponseEntity<*> {
         val fixture = fixtureRepository.findById(fixtureId)
         return if (fixture.isPresent) {
             ResponseEntity.ok(fixture.get().toFixtureDto())
@@ -41,13 +39,13 @@ class SeasonFixtureController(
     fun isValidTeam(team: Team, season: Season): Boolean = team.seasons.any { s -> s.id == season.id }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
-    fun createNewFixture(
-        @PathVariable leagueId: Long,
-        @PathVariable seasonId: Long,
-        @Valid @RequestBody fixture: CreateFixtureDto,
-    ): ResponseEntity<*> {
-        val season = seasonRepository.findById(seasonId)
+    @PreAuthorize("isAuthenticated()")
+    fun createNewFixture(@Valid @RequestBody fixture: CreateFixtureDto): ResponseEntity<*> {
+        if (securityService.hasSeasonAccess(fixture.seasonId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body<Any>(MessageResponse("You're not allowed to create a fixture in this season"))
+        }
+        val season = seasonRepository.findById(fixture.seasonId)
         val homeTeam = teamRepository.findById(fixture.homeTeam)
         val awayTeam = teamRepository.findById(fixture.awayTeam)
         return when {
@@ -79,26 +77,22 @@ class SeasonFixtureController(
     }
 
     @PutMapping("/{fixtureId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
+    @PreAuthorize("isAuthenticated() and @securityService.hasFixtureAccess(#fixtureId)")
     fun updateSeasonById(
-        @PathVariable leagueId: Long,
-        @PathVariable seasonId: Long,
         @PathVariable fixtureId: Long,
         @Valid @RequestBody newFixture: UpdateFixtureDto
     ): ResponseEntity<*> {
         val fixture = fixtureRepository.findById(fixtureId)
         if (!fixture.isPresent) return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body<Any>(MessageResponse("Could not find the fixture to update"))
-        val season = seasonRepository.findById(seasonId)
-        if (!season.isPresent) return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body<Any>(MessageResponse("Could not find the season with the fixture"))
+        val season = fixture.get().season
         val homeTeam = if (newFixture.homeTeam != null) {
             val team = teamRepository.findById(newFixture.homeTeam)
-            if (team.isPresent && isValidTeam(team.get(), season.get())) team.get() else null
+            if (team.isPresent && isValidTeam(team.get(), season)) team.get() else null
         } else fixture.get().homeTeam
         val awayTeam = if (newFixture.awayTeam != null) {
             val team = teamRepository.findById(newFixture.awayTeam)
-            if (team.isPresent && isValidTeam(team.get(), season.get())) team.get() else null
+            if (team.isPresent && isValidTeam(team.get(), season)) team.get() else null
         } else fixture.get().awayTeam
         return when {
             (homeTeam == null) -> ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -119,12 +113,8 @@ class SeasonFixtureController(
     }
 
     @DeleteMapping("/{fixtureId}")
-    @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
-    fun deleteFixtureById(
-        @PathVariable leagueId: Long,
-        @PathVariable seasonId: Long,
-        @PathVariable fixtureId: Long,
-    ): ResponseEntity<*> {
+    @PreAuthorize("isAuthenticated() and @securityService.hasFixtureAccess(#fixtureId)")
+    fun deleteFixtureById(@PathVariable fixtureId: Long): ResponseEntity<*> {
         val fixture = fixtureRepository.findById(fixtureId)
         return when {
             (!fixture.isPresent) ->

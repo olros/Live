@@ -51,7 +51,8 @@ data class CreateFixtureDto(
     val referee: String?,
     val time: LocalDateTime,
     val homeTeam: Long,
-    val awayTeam: Long
+    val awayTeam: Long,
+    val seasonId: Long,
 )
 
 data class UpdateFixtureDto(
