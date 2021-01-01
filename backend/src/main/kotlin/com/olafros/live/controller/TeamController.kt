@@ -4,7 +4,6 @@ import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.LeagueRepository
 import com.olafros.live.repository.TeamRepository
-import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -16,12 +15,11 @@ import javax.validation.Valid
 class TeamController(
     val teamRepository: TeamRepository,
     val leagueRepository: LeagueRepository,
-    val securityService: SecurityService
 ) {
 
     @GetMapping
     fun getAllTeams(@PathVariable leagueId: Long): List<TeamDtoList> {
-        return teamRepository.findByLeague_Id(leagueId).map { team -> team.toTeamDtoList() }
+        return teamRepository.findAllByLeague_Id(leagueId).map { team -> team.toTeamDtoList() }
     }
 
     @GetMapping("/{teamId}")

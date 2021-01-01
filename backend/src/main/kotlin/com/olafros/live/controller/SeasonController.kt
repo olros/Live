@@ -19,7 +19,7 @@ class SeasonController(
 
     @GetMapping
     fun getAllSeasons(@PathVariable leagueId: Long): List<SeasonDtoList> {
-        return seasonRepository.findByLeague_Id(leagueId).map { season -> season.toSeasonDtoList() }
+        return seasonRepository.findAllByLeague_Id(leagueId).map { season -> season.toSeasonDtoList() }
     }
 
     @GetMapping("/{seasonId}")

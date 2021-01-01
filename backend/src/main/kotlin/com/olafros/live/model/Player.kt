@@ -28,12 +28,14 @@ data class PlayerDto(
     val position: EPosition,
     val number: Int?,
     val active: Boolean,
-    val team: Team,
+    val team: TeamDtoList,
 )
 
 data class PlayerDtoList(val id: Long, val name: String, val position: EPosition, val number: Int?, val active: Boolean)
 data class CreatePlayerDto(val name: String, val position: EPosition, val number: Int?, val active: Boolean)
 data class UpdatePlayerDto(val name: String?, val position: EPosition?, val number: Int?, val active: Boolean?)
 
-fun Player.toPlayerDto() = PlayerDto(this.id, this.name, this.position, this.number, this.active, this.team)
+fun Player.toPlayerDto() =
+    PlayerDto(this.id, this.name, this.position, this.number, this.active, this.team.toTeamDtoList())
+
 fun Player.toPlayerDtoList() = PlayerDtoList(this.id, this.name, this.position, this.number, this.active)
