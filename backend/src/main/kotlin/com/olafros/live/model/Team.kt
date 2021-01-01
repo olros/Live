@@ -2,6 +2,7 @@ package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.olafros.live.security.authorize.SecurityService
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -19,11 +20,12 @@ data class Team(
     var logo: @Size(max = 256) String?,
     var description: @NotBlank @Size(max = 512) String,
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinTable(
         name = "team_admins",
         joinColumns = [JoinColumn(name = "team_id", referencedColumnName = "id")],
-        inverseJoinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")]
+        inverseJoinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")],
+        uniqueConstraints = [UniqueConstraint(columnNames = ["team_id", "user_id"])]
     )
     @JsonBackReference
     @JsonIgnore
@@ -32,7 +34,12 @@ data class Team(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "league_id", nullable = false)
     @JsonBackReference
-    var league: League
+    var league: League,
+
+    @ManyToMany(mappedBy = "teams", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @JsonIgnore
+    var seasons: MutableList<Season> = mutableListOf()
 )
 
 data class TeamDto(val id: Long, val name: String, val logo: String, val description: String, val isAdmin: Boolean)

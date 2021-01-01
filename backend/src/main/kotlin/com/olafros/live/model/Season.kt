@@ -14,11 +14,12 @@ data class Season(
     var id: Long = 0,
     var name: @NotBlank @Size(max = 64) String,
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinTable(
         name = "season_teams",
         joinColumns = [JoinColumn(name = "season_id", referencedColumnName = "id")],
-        inverseJoinColumns = [JoinColumn(name = "team_id", referencedColumnName = "id")]
+        inverseJoinColumns = [JoinColumn(name = "team_id", referencedColumnName = "id")],
+        uniqueConstraints = [UniqueConstraint(columnNames = ["season_id", "team_id"])]
     )
     @JsonBackReference
     @JsonIgnore

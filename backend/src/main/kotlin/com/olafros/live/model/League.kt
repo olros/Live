@@ -19,11 +19,12 @@ data class League(
     var id: Long = 0,
     var name: @NotBlank @Size(max = 128) String,
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinTable(
         name = "league_admins",
         joinColumns = [JoinColumn(name = "league_id", referencedColumnName = "id")],
-        inverseJoinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")]
+        inverseJoinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")],
+        uniqueConstraints = [UniqueConstraint(columnNames = ["league_id", "user_id"])]
     )
     @JsonBackReference
     @JsonIgnore
