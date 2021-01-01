@@ -2,6 +2,7 @@ package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -28,13 +29,18 @@ data class Season(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "league_id", nullable = false)
     @JsonBackReference
-    var league: League
+    var league: League,
+
+    @OneToMany(mappedBy = "season", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var fixtures: MutableList<Fixture> = mutableListOf()
 )
 
 data class SeasonDto(val id: Long, val name: String, val teams: List<TeamDtoList>)
 data class SeasonDtoList(val id: Long, val name: String)
 data class CreateSeasonDto(val name: String)
 data class UpdateSeasonDto(val name: String?)
+data class AddSeasonTeamDto(val teamId: Long)
 
 fun Season.toSeasonDto(): SeasonDto {
     return SeasonDto(this.id, this.name, this.teams.map { team -> team.toTeamDtoList() })

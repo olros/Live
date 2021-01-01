@@ -64,7 +64,7 @@ class TeamPlayerController(
             val updatedPlayer = player.get().copy(
                 name = newPlayer.name ?: player.get().name,
                 position = newPlayer.position ?: player.get().position,
-                number = newPlayer.number,
+                number = newPlayer.number ?: player.get().number,
                 active = newPlayer.active ?: player.get().active,
             )
             ResponseEntity.ok().body(playerRepository.save(updatedPlayer).toPlayerDto())

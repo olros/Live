@@ -64,7 +64,7 @@ class TeamController(
         return if (team.isPresent) {
             val updatedTeam: Team = team.get().copy(
                 name = newTeam.name ?: team.get().name,
-                logo = newTeam.logo,
+                logo = newTeam.logo ?: team.get().name,
                 description = newTeam.description ?: team.get().description,
             )
             ResponseEntity.ok().body(teamRepository.save(updatedTeam).toTeamDto())
