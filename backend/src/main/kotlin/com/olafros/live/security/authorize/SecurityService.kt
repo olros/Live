@@ -2,16 +2,13 @@ package com.olafros.live.security.authorize
 
 import com.olafros.live.model.User
 import com.olafros.live.repository.UserRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class SecurityService {
-    @Autowired
-    lateinit var userRepository: UserRepository
+class SecurityService(val userRepository: UserRepository) {
 
     fun getUser(): Optional<User> {
         val auth = SecurityContextHolder.getContext().authentication
