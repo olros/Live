@@ -3,7 +3,6 @@ package com.olafros.live.model
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
-import com.olafros.live.security.authorize.SecurityService
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import javax.persistence.*
@@ -39,10 +38,22 @@ data class Team(
     @ManyToMany(mappedBy = "teams", fetch = FetchType.LAZY)
     @JsonManagedReference
     @JsonIgnore
-    var seasons: MutableList<Season> = mutableListOf()
+    var seasons: MutableList<Season> = mutableListOf(),
+
+    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var players: MutableList<Player> = mutableListOf()
 )
 
-data class TeamDto(val id: Long, val name: String, val logo: String, val description: String, val isAdmin: Boolean)
+data class TeamDto(
+    val id: Long,
+    val name: String,
+    val logo: String,
+    val description: String,
+    val isAdmin: Boolean,
+    val players: List<PlayerDtoList>,
+)
+
 data class TeamDtoList(val id: Long, val name: String, val logo: String, val description: String)
 data class CreateTeamDto(val name: String, val logo: String?, val description: String)
 data class UpdateTeamDto(val name: String?, val logo: String?, val description: String?)
@@ -52,12 +63,14 @@ fun Team.toTeamDto(): TeamDto {
     val isAdmin = if (auth != null && auth !is AnonymousAuthenticationToken) {
         this.admins.any { user -> user.email == auth.name } || this.league.admins.any { user -> user.email == auth.name }
     } else false
+    val players = this.players.map { player -> player.toPlayerDtoList() }
     return TeamDto(
         this.id,
         this.name,
         this.logo.orEmpty(),
         this.description,
         isAdmin,
+        if (isAdmin) players else players.filter { player -> player.active }
     )
 }
 
