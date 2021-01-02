@@ -1,6 +1,7 @@
 package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.Size
@@ -27,6 +28,10 @@ data class Fixture(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "away_team_id", nullable = false)
     var awayTeam: Team,
+
+    @OneToMany(mappedBy = "fixture", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var players: MutableList<FixturePlayer> = mutableListOf()
 )
 
 data class FixtureDto(
@@ -36,7 +41,8 @@ data class FixtureDto(
     val time: LocalDateTime,
     val homeTeam: TeamDtoList,
     val awayTeam: TeamDtoList,
-    val season: SeasonDtoList
+    val season: SeasonDtoList,
+    val players: List<FixturePlayerDtoList>
 )
 
 data class FixtureDtoList(
@@ -71,7 +77,8 @@ fun Fixture.toFixtureDto() =
         this.time,
         this.homeTeam.toTeamDtoList(),
         this.awayTeam.toTeamDtoList(),
-        this.season.toSeasonDtoList()
+        this.season.toSeasonDtoList(),
+        this.players.map { player -> player.toFixturePlayerDtoList() }
     )
 
 fun Fixture.toFixtureDtoList() =

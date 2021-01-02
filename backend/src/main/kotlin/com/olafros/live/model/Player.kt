@@ -12,7 +12,7 @@ data class Player(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
     var name: @NotBlank @Size(max = 128) String,
-    var position: @NotBlank EPosition,
+    var position: EPosition,
     var number: @Size(max = 128) Int?,
     var active: @NotBlank Boolean,
 

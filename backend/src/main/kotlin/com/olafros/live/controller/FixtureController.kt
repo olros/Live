@@ -41,7 +41,7 @@ class FixtureController(
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     fun createNewFixture(@Valid @RequestBody fixture: CreateFixtureDto): ResponseEntity<*> {
-        if (securityService.hasSeasonAccess(fixture.seasonId)) {
+        if (!securityService.hasSeasonAccess(fixture.seasonId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body<Any>(MessageResponse("You're not allowed to create a fixture in this season"))
         }

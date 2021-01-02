@@ -32,7 +32,7 @@ class SeasonController(
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     fun createNewSeason(@Valid @RequestBody season: CreateSeasonDto): ResponseEntity<*> {
-        if (securityService.hasLeagueAccess(season.leagueId)) {
+        if (!securityService.hasLeagueAccess(season.leagueId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body<Any>(MessageResponse("You're not allowed to create a season in this league"))
         }

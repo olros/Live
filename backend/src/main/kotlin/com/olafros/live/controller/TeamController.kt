@@ -35,7 +35,7 @@ class TeamController(
     @PostMapping
     @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
     fun createNewTeam(@Valid @RequestBody newTeam: CreateTeamDto): ResponseEntity<*> {
-        if (securityService.hasLeagueAccess(newTeam.leagueId)) {
+        if (!securityService.hasLeagueAccess(newTeam.leagueId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body<Any>(MessageResponse("You're not allowed to create a team in this league"))
         }
