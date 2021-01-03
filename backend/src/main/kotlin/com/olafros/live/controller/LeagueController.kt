@@ -22,9 +22,9 @@ class LeagueController(
 
     @GetMapping("/{leagueId}")
     fun getLeagueById(@PathVariable leagueId: Long): ResponseEntity<*> {
-        val league = leagueRepository.findById(leagueId)
-        return if (league.isPresent) {
-            ResponseEntity.ok(league.get().toLeagueDto())
+        val league = leagueRepository.findLeagueById(leagueId)
+        return if (league != null) {
+            ResponseEntity.ok(league.toLeagueDto())
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
         }
@@ -34,9 +34,9 @@ class LeagueController(
     @PreAuthorize("isAuthenticated()")
     fun createNewLeague(@Valid @RequestBody league: CreateLeagueDto): ResponseEntity<*> {
         val user = securityService.getUser()
-        return if (user.isPresent) {
+        return if (user != null) {
             val admins: MutableList<User> = mutableListOf()
-            admins.add(user.get())
+            admins.add(user)
             val newLeague = League(0, league.name, admins)
             ResponseEntity.ok().body(leagueRepository.save(newLeague).toLeagueDto())
         } else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
@@ -48,9 +48,9 @@ class LeagueController(
         @PathVariable leagueId: Long,
         @Valid @RequestBody newLeague: UpdateLeagueDto
     ): ResponseEntity<*> {
-        val league = leagueRepository.findById(leagueId)
-        return if (league.isPresent) {
-            val updatedLeague: League = league.get().copy(name = newLeague.name ?: league.get().name)
+        val league = leagueRepository.findLeagueById(leagueId)
+        return if (league != null) {
+            val updatedLeague = league.copy(name = newLeague.name ?: league.name)
             ResponseEntity.ok().body(leagueRepository.save(updatedLeague).toLeagueDto())
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -61,9 +61,9 @@ class LeagueController(
     @DeleteMapping("/{leagueId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasLeagueAccess(#leagueId)")
     fun deleteLeagueById(@PathVariable leagueId: Long): ResponseEntity<*> {
-        val league = leagueRepository.findById(leagueId)
-        return if (league.isPresent) {
-            leagueRepository.delete(league.get())
+        val league = leagueRepository.findLeagueById(leagueId)
+        return if (league != null) {
+            leagueRepository.delete(league)
             ResponseEntity.ok<Any>(MessageResponse("League successfully deleted"))
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND)

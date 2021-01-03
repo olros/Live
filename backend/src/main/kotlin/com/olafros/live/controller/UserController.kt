@@ -20,8 +20,8 @@ class UserController(val userRepository: UserRepository, val securityService: Se
     @PreAuthorize("isAuthenticated() and @securityService.hasUserAccess()")
     fun getUser(): ResponseEntity<*> {
         val user = securityService.getUser()
-        return if (user.isPresent)
-            ResponseEntity.ok(user.get().toUserDto())
+        return if (user != null)
+            ResponseEntity.ok(user.toUserDto())
         else
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
     }
@@ -30,8 +30,8 @@ class UserController(val userRepository: UserRepository, val securityService: Se
     @PreAuthorize("isAuthenticated() and @securityService.hasUserAccess()")
     fun registerUser(@RequestBody updatedUser: @Valid UpdateUserDto): ResponseEntity<*> {
         val existingUser = securityService.getUser()
-        return if (existingUser.isPresent) {
-            val user: User = existingUser.get().copy(name = updatedUser.name ?: existingUser.get().name)
+        return if (existingUser != null) {
+            val user: User = existingUser.copy(name = updatedUser.name ?: existingUser.name)
             userRepository.save<User>(user)
             ResponseEntity.ok(user.toUserDto())
         } else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))

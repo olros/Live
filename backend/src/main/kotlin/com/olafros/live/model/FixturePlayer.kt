@@ -2,6 +2,8 @@ package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import javax.persistence.*
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
@@ -22,7 +24,7 @@ data class FixturePlayer(
     @JsonBackReference
     var fixture: @NotNull Fixture,
 
-    var number: @Size(max = 128) Int?,
+    var number: @Min(0) @Max(99) Int?,
     var position: @NotNull EPosition,
 )
 

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface FixtureEventRepository : JpaRepository<FixtureEvent, Long> {
+    fun findFixtureEventById(id: Long?): FixtureEvent?
     fun findAllByFixture_Id(fixtureId: Long): List<FixtureEvent>
     fun findAllByType(type: EFixtureEvent): List<FixtureEvent>
 }

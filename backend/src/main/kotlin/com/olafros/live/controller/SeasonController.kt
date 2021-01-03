@@ -21,9 +21,9 @@ class SeasonController(
 
     @GetMapping("/{seasonId}")
     fun getSeasonById(@PathVariable seasonId: Long): ResponseEntity<*> {
-        val season = seasonRepository.findById(seasonId)
-        return if (season.isPresent) {
-            ResponseEntity.ok(season.get().toSeasonDto())
+        val season = seasonRepository.findSeasonById(seasonId)
+        return if (season != null) {
+            ResponseEntity.ok(season.toSeasonDto())
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the season"))
         }
@@ -36,12 +36,12 @@ class SeasonController(
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body<Any>(MessageResponse("You're not allowed to create a season in this league"))
         }
-        val league = leagueRepository.findById(season.leagueId)
-        return if (!league.isPresent) {
+        val league = leagueRepository.findLeagueById(season.leagueId)
+        return if (league == null) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
         } else {
             val teams: MutableList<Team> = mutableListOf()
-            val newSeason = Season(0, season.name, teams, league.get())
+            val newSeason = Season(0, season.name, teams, league)
             ResponseEntity.ok().body(seasonRepository.save(newSeason).toSeasonDto())
         }
     }
@@ -52,10 +52,10 @@ class SeasonController(
         @PathVariable seasonId: Long,
         @Valid @RequestBody newSeason: UpdateSeasonDto
     ): ResponseEntity<*> {
-        val season = seasonRepository.findById(seasonId)
-        return if (season.isPresent) {
-            val updatedSeason: Season = season.get().copy(
-                name = newSeason.name ?: season.get().name,
+        val season = seasonRepository.findSeasonById(seasonId)
+        return if (season != null) {
+            val updatedSeason = season.copy(
+                name = newSeason.name ?: season.name,
             )
             ResponseEntity.ok().body(seasonRepository.save(updatedSeason).toSeasonDto())
         } else {
@@ -69,9 +69,9 @@ class SeasonController(
     fun deleteSeasonById(
         @PathVariable seasonId: Long
     ): ResponseEntity<*> {
-        val season = seasonRepository.findById(seasonId)
-        return if (season.isPresent) {
-            seasonRepository.delete(season.get())
+        val season = seasonRepository.findSeasonById(seasonId)
+        return if (season != null) {
+            seasonRepository.delete(season)
             ResponseEntity.ok<Any>(MessageResponse("Season successfully deleted"))
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND)

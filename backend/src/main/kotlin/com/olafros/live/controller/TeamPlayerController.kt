@@ -24,9 +24,9 @@ class TeamPlayerController(
 
     @GetMapping("/{playerId}")
     fun getTeamPlayer(@PathVariable teamId: Long, @PathVariable playerId: Long): ResponseEntity<*> {
-        val player = playerRepository.findById(playerId)
-        return if (player.isPresent)
-            ResponseEntity.ok(player.get().toPlayerDto())
+        val player = playerRepository.findPlayerById(playerId)
+        return if (player != null)
+            ResponseEntity.ok(player.toPlayerDto())
         else
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
     }
@@ -34,11 +34,11 @@ class TeamPlayerController(
     @PostMapping
     @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun addTeamPlayer(@PathVariable teamId: Long, @Valid @RequestBody newPlayer: CreatePlayerDto): ResponseEntity<*> {
-        val team = teamRepository.findById(teamId)
-        return if (!team.isPresent) {
+        val team = teamRepository.findTeamById(teamId)
+        return if (team == null) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
         } else {
-            val player = Player(0, newPlayer.name, newPlayer.position, newPlayer.number, newPlayer.active, team.get())
+            val player = Player(0, newPlayer.name, newPlayer.position, newPlayer.number, newPlayer.active, team)
             ResponseEntity.ok().body(playerRepository.save(player).toPlayerDto())
         }
     }
@@ -50,13 +50,13 @@ class TeamPlayerController(
         @PathVariable playerId: Long,
         @Valid @RequestBody newPlayer: UpdatePlayerDto
     ): ResponseEntity<*> {
-        val player = playerRepository.findById(playerId)
-        return if (player.isPresent) {
-            val updatedPlayer = player.get().copy(
-                name = newPlayer.name ?: player.get().name,
-                position = newPlayer.position ?: player.get().position,
-                number = newPlayer.number ?: player.get().number,
-                active = newPlayer.active ?: player.get().active,
+        val player = playerRepository.findPlayerById(playerId)
+        return if (player != null) {
+            val updatedPlayer = player.copy(
+                name = newPlayer.name ?: player.name,
+                position = newPlayer.position ?: player.position,
+                number = newPlayer.number ?: player.number,
+                active = newPlayer.active ?: player.active,
             )
             ResponseEntity.ok().body(playerRepository.save(updatedPlayer).toPlayerDto())
         } else {

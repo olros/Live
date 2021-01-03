@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface FixturePlayerRepository : JpaRepository<FixturePlayer, Long> {
+    fun findFixturePlayerById(id: Long?): FixturePlayer?
     fun findAllByFixture_Id(fixtureId: Long): List<FixturePlayer>
 }

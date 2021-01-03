@@ -17,7 +17,7 @@ data class Team(
     var id: Long = 0,
     var name: @NotNull @Size(max = 128) String,
     var logo: @Size(max = 256) String?,
-    var description: @NotNull @Size(max = 512) String,
+    var description: @Size(max = 512) String?,
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinTable(
@@ -54,8 +54,8 @@ data class TeamDto(
     val players: List<PlayerDtoList>,
 )
 
-data class TeamDtoList(val id: Long, val name: String, val logo: String, val description: String)
-data class CreateTeamDto(val name: String, val logo: String?, val description: String, val leagueId: Long)
+data class TeamDtoList(val id: Long, val name: String, val logo: String)
+data class CreateTeamDto(val name: String, val logo: String?, val description: String?, val leagueId: Long)
 data class UpdateTeamDto(val name: String?, val logo: String?, val description: String?)
 
 fun Team.toTeamDto(): TeamDto {
@@ -68,12 +68,12 @@ fun Team.toTeamDto(): TeamDto {
         this.id,
         this.name,
         this.logo.orEmpty(),
-        this.description,
+        this.description.orEmpty(),
         isAdmin,
         if (isAdmin) players else players.filter { player -> player.active }
     )
 }
 
 fun Team.toTeamDtoList(): TeamDtoList {
-    return TeamDtoList(this.id, this.name, this.logo.orEmpty(), this.description)
+    return TeamDtoList(this.id, this.name, this.logo.orEmpty())
 }

@@ -29,9 +29,9 @@ class FixtureEventController(
 
     @GetMapping("/{eventId}")
     fun getFixtureEvent(@PathVariable fixtureId: Long, @PathVariable eventId: Long): ResponseEntity<*> {
-        val event = fixtureEventRepository.findById(eventId)
-        return if (event.isPresent)
-            ResponseEntity.ok(event.get().toFixtureEventDto())
+        val event = fixtureEventRepository.findFixtureEventById(eventId)
+        return if (event != null)
+            ResponseEntity.ok(event.toFixtureEventDto())
         else
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the event"))
     }
@@ -49,8 +49,8 @@ class FixtureEventController(
 //            if (player.isPresent) player.get() else null
 //        } else null
 //        val team = if (newEvent.team != null){
-//            val team = teamRepository.findById(newEvent.team)
-//            if (team.isPresent) team.get() else null
+//            val team = teamRepository.findTeamById(newEvent.team)
+//            if (team != null) team else null
 //        } else null
 //
 //        return if (newEvent.player1 != null && player1 != null)

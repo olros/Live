@@ -27,47 +27,47 @@ class TeamAdminController(
     @GetMapping
     @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun getAllTeamAdmins(@PathVariable teamId: Long): ResponseEntity<*> {
-        val team = teamRepository.findById(teamId)
-        return if (!team.isPresent) {
+        val team = teamRepository.findTeamById(teamId)
+        return if (team == null) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
         } else {
-            ResponseEntity.ok().body(getTeamAdminsList(team.get()))
+            ResponseEntity.ok().body(getTeamAdminsList(team))
         }
     }
 
     @PostMapping
     @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun addTeamAdmin(@PathVariable teamId: Long, @Valid @RequestBody newAdmin: AddLeagueAdminDto): ResponseEntity<*> {
-        val team = teamRepository.findById(teamId)
+        val team = teamRepository.findTeamById(teamId)
         val user = securityService.getUser(newAdmin.email)
-        return if (!team.isPresent) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
-        } else if (!user.isPresent) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the user to add as admin"))
-        } else if (team.get().admins.any { admin -> admin.id == user.get().id }) {
-            ResponseEntity.status(HttpStatus.CONFLICT).body<Any>(MessageResponse("The user is already admin"))
-        } else {
-            val updatedTeam: Team = team.get()
-            updatedTeam.admins.add(user.get())
-            teamRepository.save(updatedTeam)
-            ResponseEntity.ok().body(getTeamAdminsList(updatedTeam))
+        return when {
+            (team == null) ->
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
+            (user == null) ->
+                ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body<Any>(MessageResponse("Could not find the user to add as admin"))
+            (team.admins.any { admin -> admin.id == user.id }) ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body<Any>(MessageResponse("The user is already admin"))
+            else -> {
+                team.admins.add(user)
+                teamRepository.save(team)
+                ResponseEntity.ok().body(getTeamAdminsList(team))
+            }
         }
     }
 
     @DeleteMapping("/{adminId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasTeamAccess(#teamId)")
     fun deleteTeamAdmin(@PathVariable teamId: Long, @PathVariable adminId: Long): ResponseEntity<*> {
-        val team = teamRepository.findById(teamId)
-        return if (!team.isPresent) {
+        val team = teamRepository.findTeamById(teamId)
+        return if (team == null) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
         } else {
-            val user = team.get().admins.find { user -> user.id == adminId }
+            val user = team.admins.find { user -> user.id == adminId }
             if (user != null) {
-                val updatedTeam = team.get()
-                updatedTeam.admins.remove(user)
-                teamRepository.save(updatedTeam)
-                ResponseEntity.ok().body(getTeamAdminsList(updatedTeam))
+                team.admins.remove(user)
+                teamRepository.save(team)
+                ResponseEntity.ok().body(getTeamAdminsList(team))
             } else {
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body<Any>(MessageResponse("Could not find the user to remove as admin"))

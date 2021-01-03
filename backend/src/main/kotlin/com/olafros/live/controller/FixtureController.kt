@@ -28,9 +28,9 @@ class FixtureController(
 
     @GetMapping("/{fixtureId}")
     fun getFixtureById(@PathVariable fixtureId: Long): ResponseEntity<*> {
-        val fixture = fixtureRepository.findById(fixtureId)
-        return if (fixture.isPresent) {
-            ResponseEntity.ok(fixture.get().toFixtureDto())
+        val fixture = fixtureRepository.findFixtureById(fixtureId)
+        return if (fixture != null) {
+            ResponseEntity.ok(fixture.toFixtureDto())
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the fixture"))
         }
@@ -45,31 +45,31 @@ class FixtureController(
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body<Any>(MessageResponse("You're not allowed to create a fixture in this season"))
         }
-        val season = seasonRepository.findById(fixture.seasonId)
-        val homeTeam = teamRepository.findById(fixture.homeTeam)
-        val awayTeam = teamRepository.findById(fixture.awayTeam)
+        val season = seasonRepository.findSeasonById(fixture.seasonId)
+        val homeTeam = teamRepository.findTeamById(fixture.homeTeam)
+        val awayTeam = teamRepository.findTeamById(fixture.awayTeam)
         return when {
-            (!season.isPresent) ->
+            (season == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the season"))
-            (!homeTeam.isPresent) ->
+            (homeTeam == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the home-team"))
-            (!awayTeam.isPresent) ->
+            (awayTeam == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the away-team"))
-            (!isValidTeam(homeTeam.get(), season.get())) ->
+            (!isValidTeam(homeTeam, season)) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find ${homeTeam.get().name} in this season"))
-            (!isValidTeam(awayTeam.get(), season.get())) ->
+                    .body<Any>(MessageResponse("Could not find ${homeTeam.name} in this season"))
+            (!isValidTeam(awayTeam, season)) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find ${awayTeam.get().name} in this season"))
+                    .body<Any>(MessageResponse("Could not find ${awayTeam.name} in this season"))
             else -> {
                 val newFixture = Fixture(
                     0,
                     fixture.location,
                     fixture.referee,
                     fixture.time,
-                    season.get(),
-                    homeTeam.get(),
-                    awayTeam.get()
+                    season,
+                    homeTeam,
+                    awayTeam
                 )
                 ResponseEntity.ok().body(fixtureRepository.save(newFixture).toFixtureDto())
             }
@@ -82,28 +82,28 @@ class FixtureController(
         @PathVariable fixtureId: Long,
         @Valid @RequestBody newFixture: UpdateFixtureDto
     ): ResponseEntity<*> {
-        val fixture = fixtureRepository.findById(fixtureId)
-        if (!fixture.isPresent) return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        val fixture = fixtureRepository.findFixtureById(fixtureId)
+        if (fixture == null) return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body<Any>(MessageResponse("Could not find the fixture to update"))
-        val season = fixture.get().season
+        val season = fixture.season
         val homeTeam = if (newFixture.homeTeam != null) {
-            val team = teamRepository.findById(newFixture.homeTeam)
-            if (team.isPresent && isValidTeam(team.get(), season)) team.get() else null
-        } else fixture.get().homeTeam
+            val team = teamRepository.findTeamById(newFixture.homeTeam)
+            if (team != null && isValidTeam(team, season)) team else null
+        } else fixture.homeTeam
         val awayTeam = if (newFixture.awayTeam != null) {
-            val team = teamRepository.findById(newFixture.awayTeam)
-            if (team.isPresent && isValidTeam(team.get(), season)) team.get() else null
-        } else fixture.get().awayTeam
+            val team = teamRepository.findTeamById(newFixture.awayTeam)
+            if (team != null && isValidTeam(team, season)) team else null
+        } else fixture.awayTeam
         return when {
             (homeTeam == null) -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body<Any>(MessageResponse("Could not find home-team in this season"))
             (awayTeam == null) -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body<Any>(MessageResponse("Could not find away-team in this season"))
             else -> {
-                val updatedFixture: Fixture = fixture.get().copy(
-                    location = newFixture.location ?: fixture.get().location,
-                    referee = newFixture.referee ?: fixture.get().referee,
-                    time = newFixture.time ?: fixture.get().time,
+                val updatedFixture = fixture.copy(
+                    location = newFixture.location ?: fixture.location,
+                    referee = newFixture.referee ?: fixture.referee,
+                    time = newFixture.time ?: fixture.time,
                     homeTeam = homeTeam,
                     awayTeam = awayTeam,
                 )
@@ -115,13 +115,13 @@ class FixtureController(
     @DeleteMapping("/{fixtureId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasFixtureAccess(#fixtureId)")
     fun deleteFixtureById(@PathVariable fixtureId: Long): ResponseEntity<*> {
-        val fixture = fixtureRepository.findById(fixtureId)
+        val fixture = fixtureRepository.findFixtureById(fixtureId)
         return when {
-            (!fixture.isPresent) ->
+            (fixture == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body<Any>(MessageResponse("Could not find the fixture to delete"))
             else -> {
-                fixtureRepository.delete(fixture.get())
+                fixtureRepository.delete(fixture)
                 ResponseEntity.ok<Any>(MessageResponse("Fixture successfully deleted"))
             }
         }

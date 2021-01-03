@@ -19,51 +19,43 @@ class SeasonTeamController(
 
     @GetMapping
     fun getAllTeams(@PathVariable seasonId: Long): List<TeamDtoList> {
-        return teamRepository.findAllBySeasonsContains(seasonId).map { team -> team.toTeamDtoList() }
+        return seasonRepository.findSeasonById(seasonId)?.teams?.map { team -> team.toTeamDtoList() } ?: emptyList()
     }
 
     fun isValidTeam(team: Team, league: League): Boolean = team.league.id == league.id
 
     @PostMapping
     @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
-    fun addNewTeam(
-        @PathVariable seasonId: Long,
-        @Valid @RequestBody team: AddSeasonTeamDto,
-    ): ResponseEntity<*> {
-        val season = seasonRepository.findById(seasonId)
-        val team = teamRepository.findById(team.teamId)
+    fun addNewTeam(@PathVariable seasonId: Long, @Valid @RequestBody newTeam: AddSeasonTeamDto): ResponseEntity<*> {
+        val season = seasonRepository.findSeasonById(seasonId)
+        val team = teamRepository.findTeamById(newTeam.teamId)
         return when {
-            (!season.isPresent) ->
+            (season == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the season"))
-            (!team.isPresent) ->
+            (team == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the home-team"))
-            (!isValidTeam(team.get(), team.get().league)) ->
+            (!isValidTeam(team, team.league)) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find ${team.get().name} in this league"))
+                    .body<Any>(MessageResponse("Could not find ${team.name} in this league"))
             else -> {
-                val updatedSeason = season.get()
-                updatedSeason.teams.add(team.get())
-                ResponseEntity.ok().body(seasonRepository.save(updatedSeason).toSeasonDto())
+                season.teams.add(team)
+                ResponseEntity.ok().body(seasonRepository.save(season).teams.map { team -> team.toTeamDtoList() })
             }
         }
     }
 
     @DeleteMapping("/{teamId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasSeasonAccess(#seasonId)")
-    fun deleteTeamById(
-        @PathVariable seasonId: Long,
-        @PathVariable teamId: Long,
-    ): ResponseEntity<*> {
-        val season = seasonRepository.findById(seasonId)
-        return if (!season.isPresent) {
+    fun deleteTeamById(@PathVariable seasonId: Long, @PathVariable teamId: Long): ResponseEntity<*> {
+        val season = seasonRepository.findSeasonById(seasonId)
+        return if (season == null) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the season"))
         } else {
-            val team = season.get().teams.find { team -> team.id == teamId }
+            val team = season.teams.find { team -> team.id == teamId }
             if (team != null) {
-                val updatedSeason = season.get()
-                updatedSeason.teams.remove(team)
-                seasonRepository.save(updatedSeason)
-                ResponseEntity.ok().body(seasonRepository.save(updatedSeason).toSeasonDto())
+                season.teams.remove(team)
+                seasonRepository.save(season)
+                ResponseEntity.ok().body(seasonRepository.save(season).teams.map { team -> team.toTeamDtoList() })
             } else {
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body<Any>(MessageResponse("Could not find the team to remove from the season"))

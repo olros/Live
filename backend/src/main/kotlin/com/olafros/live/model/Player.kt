@@ -2,6 +2,8 @@ package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import javax.persistence.*
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
@@ -13,7 +15,7 @@ data class Player(
     var id: Long = 0,
     var name: @NotNull @Size(max = 128) String,
     var position: @NotNull EPosition,
-    var number: @Size(max = 128) Int?,
+    var number: @Min(0) @Max(99) Int?,
     var active: @NotNull Boolean,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -20,43 +20,41 @@ class SecurityService(
     val fixtureRepository: FixtureRepository,
 ) {
 
-    fun getUser(): Optional<User> {
+    fun getUser(): User? {
         val auth = SecurityContextHolder.getContext().authentication
         return if (auth != null && auth !is AnonymousAuthenticationToken) {
             getUser(auth.name)
-        } else Optional.empty()
+        } else null
     }
 
-    fun getUser(email: String): Optional<User> {
-        return userRepository.findByEmail(email)
-    }
+    fun getUser(email: String): User? = userRepository.findByEmail(email)
 
-    fun hasUserAccess() = getUser().isPresent
+    fun hasUserAccess() = getUser() != null
 
     fun hasLeagueAccess(leagueId: Long): Boolean {
         val user = getUser()
-        return if (user.isPresent) checkLeagueAccess(leagueId, user.get()) else false
+        return if (user != null) checkLeagueAccess(leagueId, user) else false
     }
 
     fun hasTeamAccess(teamId: Long): Boolean {
         val user = getUser()
-        val team = teamRepository.findById(teamId)
-        return if (user.isPresent && team.isPresent) checkTeamAccess(team.get(), user.get()) else false
+        val team = teamRepository.findTeamById(teamId)
+        return if (user != null && team != null) checkTeamAccess(team, user) else false
     }
 
     fun hasSeasonAccess(seasonId: Long): Boolean {
         val user = getUser()
-        val season = seasonRepository.findById(seasonId)
-        return if (season.isPresent && user.isPresent) checkSeasonAccess(season.get(), user.get()) else false
+        val season = seasonRepository.findSeasonById(seasonId)
+        return if (season != null && user != null) checkSeasonAccess(season, user) else false
     }
 
     fun hasFixtureAccess(fixtureId: Long): Boolean {
         val user = getUser()
-        val fixture = fixtureRepository.findById(fixtureId)
-        return if (fixture.isPresent && user.isPresent)
-            return (checkSeasonAccess(fixture.get().season, user.get()) ||
-                    checkTeamAccess(fixture.get().homeTeam, user.get()) ||
-                    checkTeamAccess(fixture.get().awayTeam, user.get()))
+        val fixture = fixtureRepository.findFixtureById(fixtureId)
+        return if (fixture != null && user != null)
+            return (checkSeasonAccess(fixture.season, user) ||
+                    checkTeamAccess(fixture.homeTeam, user) ||
+                    checkTeamAccess(fixture.awayTeam, user))
         else false
     }
 
