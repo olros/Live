@@ -2,6 +2,8 @@ package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import javax.persistence.*
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
 
 @Entity
@@ -10,7 +12,7 @@ data class FixtureEvent(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
-    var minute: @NotNull Int,
+    var minute: @Min(0) @Max(90) Int,
     var type: @NotNull EFixtureEvent,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

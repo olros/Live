@@ -29,14 +29,12 @@ class FixturePlayerController(
     @GetMapping("/{playerId}")
     fun getFixturePlayer(@PathVariable fixtureId: Long, @PathVariable playerId: Long): ResponseEntity<*> {
         val player = fixturePlayerRepository.findFixturePlayerById(playerId)
-        return if (player != null && player.fixture.id == fixtureId)
-            ResponseEntity.ok(player.toFixturePlayerDto())
-        else
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
+        return if (player != null && player.fixture.id == fixtureId) ResponseEntity.ok(player.toFixturePlayerDto())
+        else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and @securityService.hasFixtureAccess(#fixtureId)")
     fun addFixturePlayer(
         @PathVariable fixtureId: Long,
         @Valid @RequestBody newPlayer: CreateFixturePlayerDto
@@ -48,9 +46,6 @@ class FixturePlayerController(
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
             (fixture == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the fixture"))
-            (!securityService.hasTeamAccess(player.team.id)) ->
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body<Any>(MessageResponse("You're not allowed to edit this team's fixture players"))
             (fixture.players.any { p -> p.player.id == newPlayer.playerId }) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body<Any>(MessageResponse("The player is already playing in this fixture"))
@@ -68,47 +63,29 @@ class FixturePlayerController(
     }
 
     @PutMapping("/{playerId}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and @securityService.hasFixtureAccess(#fixtureId)")
     fun updateTeamPlayer(
         @PathVariable fixtureId: Long,
         @PathVariable playerId: Long,
         @Valid @RequestBody newPlayer: UpdateFixturePlayerDto
     ): ResponseEntity<*> {
         val player = fixturePlayerRepository.findFixturePlayerById(playerId)
-        return when {
-            (player == null) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
-            (!securityService.hasTeamAccess(player.player.team.id)) ->
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body<Any>(MessageResponse("You're not allowed to edit this team's fixture players"))
-            else -> {
-                val updatedFixturePlayer = player.copy(
-                    number = newPlayer.number ?: player.number,
-                    position = newPlayer.position ?: player.position,
-                )
-                ResponseEntity.ok().body(fixturePlayerRepository.save(updatedFixturePlayer).toFixturePlayerDto())
-            }
-        }
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body<Any>(MessageResponse("Could not find the player"))
+        val updatedFixturePlayer = player.copy(
+            number = newPlayer.number ?: player.number,
+            position = newPlayer.position ?: player.position,
+        )
+        return ResponseEntity.ok().body(fixturePlayerRepository.save(updatedFixturePlayer).toFixturePlayerDto())
     }
 
     @DeleteMapping("/{playerId}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and @securityService.hasFixtureAccess(#fixtureId)")
     fun deleteLeagueAdmin(@PathVariable fixtureId: Long, @PathVariable playerId: Long): ResponseEntity<*> {
         val player = fixturePlayerRepository.findFixturePlayerById(playerId)
-        val fixture = fixtureRepository.findFixtureById(fixtureId)
-        return when {
-            (player == null) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
-            (fixture == null) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the fixture"))
-            (!securityService.hasTeamAccess(player.player.team.id)) ->
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body<Any>(MessageResponse("You're not allowed to edit this team's fixture players"))
-            else -> {
-                fixture.players.remove(player)
-                fixtureRepository.save(fixture)
-                ResponseEntity.ok<Any>(MessageResponse("Fixture player successfully deleted"))
-            }
-        }
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body<Any>(MessageResponse("Could not find the player"))
+        fixturePlayerRepository.delete(player)
+        return ResponseEntity.ok<Any>(MessageResponse("Fixture player successfully deleted"))
     }
 }
