@@ -2,7 +2,7 @@ package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import javax.persistence.*
-import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Entity
@@ -11,15 +11,15 @@ data class Player(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
-    var name: @NotBlank @Size(max = 128) String,
-    var position: EPosition,
+    var name: @NotNull @Size(max = 128) String,
+    var position: @NotNull EPosition,
     var number: @Size(max = 128) Int?,
-    var active: @NotBlank Boolean,
+    var active: @NotNull Boolean,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "team_id", nullable = false)
     @JsonBackReference
-    var team: Team,
+    var team: @NotNull Team,
 )
 
 data class PlayerDto(

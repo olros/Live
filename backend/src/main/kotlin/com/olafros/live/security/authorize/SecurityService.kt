@@ -53,7 +53,11 @@ class SecurityService(
     fun hasFixtureAccess(fixtureId: Long): Boolean {
         val user = getUser()
         val fixture = fixtureRepository.findById(fixtureId)
-        return if (fixture.isPresent && user.isPresent) checkSeasonAccess(fixture.get().season, user.get()) else false
+        return if (fixture.isPresent && user.isPresent)
+            return (checkSeasonAccess(fixture.get().season, user.get()) ||
+                    checkTeamAccess(fixture.get().homeTeam, user.get()) ||
+                    checkTeamAccess(fixture.get().awayTeam, user.get()))
+        else false
     }
 
     companion object {

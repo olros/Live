@@ -52,7 +52,8 @@ class FixturePlayerController(
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body<Any>(MessageResponse("You're not allowed to edit this team's fixture players"))
             (fixture.get().players.any { p -> p.player.id == newPlayer.playerId }) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("The player is already playing in this fixture"))
+                ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body<Any>(MessageResponse("The player is already playing in this fixture"))
             else -> {
                 val fixturePlayer = FixturePlayer(
                     0,

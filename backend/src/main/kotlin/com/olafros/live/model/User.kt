@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import javax.persistence.*
 import javax.validation.constraints.Email
-import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Entity
@@ -13,10 +13,10 @@ data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
-    var name: @NotBlank @Size(max = 128) String,
-    var email: @NotBlank @Size(max = 64) @Email String,
+    var name: @NotNull @Size(max = 128) String,
+    var email: @NotNull @Size(max = 64) @Email String,
     @JsonIgnore
-    var password: @NotBlank @Size(max = 128) String,
+    var password: @NotNull @Size(max = 128) String,
 
     @ManyToMany(mappedBy = "admins", fetch = FetchType.LAZY)
     @JsonManagedReference

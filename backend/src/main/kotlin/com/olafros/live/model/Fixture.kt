@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import java.time.LocalDateTime
 import javax.persistence.*
+import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Entity
@@ -14,20 +15,20 @@ data class Fixture(
     var id: Long = 0,
     var location: @Size(max = 128) String?,
     var referee: @Size(max = 128) String?,
-    var time: LocalDateTime,
+    var time: @NotNull LocalDateTime,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "season_id", nullable = false)
     @JsonBackReference
-    var season: Season,
+    var season: @NotNull Season,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "home_team_id", nullable = false)
-    var homeTeam: Team,
+    var homeTeam: @NotNull Team,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "away_team_id", nullable = false)
-    var awayTeam: Team,
+    var awayTeam: @NotNull Team,
 
     @OneToMany(mappedBy = "fixture", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JsonManagedReference

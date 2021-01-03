@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import javax.persistence.*
-import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Entity
@@ -13,7 +13,7 @@ data class Season(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
-    var name: @NotBlank @Size(max = 64) String,
+    var name: @NotNull @Size(max = 64) String,
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinTable(
@@ -29,7 +29,7 @@ data class Season(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "league_id", nullable = false)
     @JsonBackReference
-    var league: League,
+    var league: @NotNull League,
 
     @OneToMany(mappedBy = "season", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JsonManagedReference

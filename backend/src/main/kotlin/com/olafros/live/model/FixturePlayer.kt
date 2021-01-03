@@ -15,23 +15,31 @@ data class FixturePlayer(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "player_id", nullable = false)
     @JsonBackReference
-    var player: Player,
+    var player: @NotNull Player,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "fixture_id", nullable = false)
     @JsonBackReference
-    var fixture: Fixture,
+    var fixture: @NotNull Fixture,
 
     var number: @Size(max = 128) Int?,
-    var position: EPosition,
+    var position: @NotNull EPosition,
 )
 
-data class FixturePlayerDto(val player: PlayerDto, val fixture: FixtureDtoList, val number: Int?, val position: EPosition)
-data class FixturePlayerDtoList(val player: PlayerDtoList, val number: Int?, val position: EPosition)
+data class FixturePlayerDto(
+    val id: Long,
+    val player: PlayerDto,
+    val fixture: FixtureDtoList,
+    val number: Int?,
+    val position: EPosition
+)
+
+data class FixturePlayerDtoList(val id: Long, val player: PlayerDtoList, val number: Int?, val position: EPosition)
 data class CreateFixturePlayerDto(val playerId: Long, val number: Int?, val position: EPosition?)
 data class UpdateFixturePlayerDto(val number: Int?, val position: EPosition?)
 
 fun FixturePlayer.toFixturePlayerDto() =
-    FixturePlayerDto(this.player.toPlayerDto(), this.fixture.toFixtureDtoList(), this.number, this.position)
+    FixturePlayerDto(this.id, this.player.toPlayerDto(), this.fixture.toFixtureDtoList(), this.number, this.position)
 
-fun FixturePlayer.toFixturePlayerDtoList() = FixturePlayerDtoList(this.player.toPlayerDtoList(), this.number, this.position)
+fun FixturePlayer.toFixturePlayerDtoList() =
+    FixturePlayerDtoList(this.id, this.player.toPlayerDtoList(), this.number, this.position)

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import javax.persistence.*
-import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Entity
@@ -15,9 +15,9 @@ data class Team(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
-    var name: @NotBlank @Size(max = 128) String,
+    var name: @NotNull @Size(max = 128) String,
     var logo: @Size(max = 256) String?,
-    var description: @NotBlank @Size(max = 512) String,
+    var description: @NotNull @Size(max = 512) String,
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinTable(
@@ -33,7 +33,7 @@ data class Team(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "league_id", nullable = false)
     @JsonBackReference
-    var league: League,
+    var league: @NotNull League,
 
     @ManyToMany(mappedBy = "teams", fetch = FetchType.LAZY)
     @JsonManagedReference
