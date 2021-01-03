@@ -1,15 +1,17 @@
 package com.olafros.live.controller
 
-import com.olafros.live.model.*
+import com.olafros.live.model.FixtureEventDtoList
+import com.olafros.live.model.toFixtureEventDto
+import com.olafros.live.model.toFixtureEventDtoList
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.*
 import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.*
-import java.util.*
-import javax.validation.Valid
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/fixtures/{fixtureId}/events")

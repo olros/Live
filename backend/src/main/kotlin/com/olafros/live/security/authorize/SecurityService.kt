@@ -10,7 +10,6 @@ import com.olafros.live.repository.UserRepository
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class SecurityService(
