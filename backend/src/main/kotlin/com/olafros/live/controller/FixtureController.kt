@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.FixtureRepository
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/fixtures")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.FIXTURES}")
 class FixtureController(
     val seasonRepository: SeasonRepository,
     val fixtureRepository: FixtureRepository,

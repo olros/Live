@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.LeagueRepository
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/seasons")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.SEASONS}")
 class SeasonController(
     val seasonRepository: SeasonRepository,
     val leagueRepository: LeagueRepository,
@@ -22,11 +23,53 @@ class SeasonController(
     @GetMapping("/{seasonId}")
     fun getSeasonById(@PathVariable seasonId: Long): ResponseEntity<*> {
         val season = seasonRepository.findSeasonById(seasonId)
-        return if (season != null) {
-            ResponseEntity.ok(season.toSeasonDto())
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the season"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body<Any>(MessageResponse("Could not find the season"))
+        return ResponseEntity.ok(season.toSeasonDto())
+    }
+
+    @GetMapping("/{seasonId}/${APIConstants.FIXTURES}")
+    fun getSeasonFixturesById(@PathVariable seasonId: Long): ResponseEntity<*> {
+        val season = seasonRepository.findSeasonById(seasonId)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body<Any>(MessageResponse("Could not find the season"))
+        return ResponseEntity.ok(season.fixtures.map { fixture -> fixture.toFixtureDtoList() })
+    }
+
+    @GetMapping("/{seasonId}/${APIConstants.TABLE}")
+    fun getSeasonTableById(@PathVariable seasonId: Long): ResponseEntity<*> {
+        val season = seasonRepository.findSeasonById(seasonId)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body<Any>(MessageResponse("Could not find the season"))
+        val table: MutableList<TableEntryDto> = mutableListOf()
+        season.teams.forEach { team -> table.add(TableEntryDto(team.toTeamDtoList())) }
+        season.fixtures.forEach { fixture ->
+            run {
+                val result = fixture.getResult()
+                table.find { entry -> entry.team.id == fixture.homeTeam.id }?.apply {
+                    goalsFor += result.homeTeam
+                    goalsAgainst += result.awayTeam
+                    wins += if (result.homeTeam > result.awayTeam) 1 else 0
+                    draws += if (result.homeTeam == result.awayTeam) 1 else 0
+                    losses += if (result.homeTeam < result.awayTeam) 1 else 0
+                    points += if (result.homeTeam > result.awayTeam) 3 else if (result.homeTeam == result.awayTeam) 1 else 0
+                    played++
+                }
+                table.find { entry -> entry.team.id == fixture.awayTeam.id }?.apply {
+                    goalsFor += result.awayTeam
+                    goalsAgainst += result.homeTeam
+                    wins += if (result.homeTeam < result.awayTeam) 1 else 0
+                    draws += if (result.homeTeam == result.awayTeam) 1 else 0
+                    losses += if (result.homeTeam > result.awayTeam) 1 else 0
+                    points += if (result.homeTeam < result.awayTeam) 3 else if (result.homeTeam == result.awayTeam) 1 else 0
+                    played++
+                }
+            }
         }
+        val sortedTable = table.sortedWith(compareByDescending<TableEntryDto> { it.points }.thenByDescending { it.goalsFor - it.goalsAgainst })
+        var rank = 1
+        val tableWithRank = sortedTable.map { entry -> entry.copy( rank = rank++ ) }
+        return ResponseEntity.ok(tableWithRank)
     }
 
     @PostMapping

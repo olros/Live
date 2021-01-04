@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.SeasonRepository
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/seasons/{seasonId}/teams")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.SEASONS}/{seasonId}/${APIConstants.TEAMS}")
 class SeasonTeamController(
     val seasonRepository: SeasonRepository,
     val teamRepository: TeamRepository,

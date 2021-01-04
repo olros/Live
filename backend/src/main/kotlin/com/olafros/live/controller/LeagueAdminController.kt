@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.AddLeagueAdminDto
 import com.olafros.live.model.League
 import com.olafros.live.model.UserDtoList
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/leagues/{leagueId}/admins")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.LEAGUES}/{leagueId}/${APIConstants.ADMINS}")
 class LeagueAdminController(
     val leagueRepository: LeagueRepository,
     val securityService: SecurityService

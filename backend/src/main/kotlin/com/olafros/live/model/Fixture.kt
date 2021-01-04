@@ -32,7 +32,11 @@ data class Fixture(
 
     @OneToMany(mappedBy = "fixture", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JsonManagedReference
-    var players: MutableList<FixturePlayer> = mutableListOf()
+    var players: MutableList<FixturePlayer> = mutableListOf(),
+
+    @OneToMany(mappedBy = "fixture", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var events: MutableList<FixtureEvent> = mutableListOf(),
 )
 
 data class FixtureDto(
@@ -43,14 +47,16 @@ data class FixtureDto(
     val homeTeam: TeamDtoList,
     val awayTeam: TeamDtoList,
     val season: SeasonDtoList,
-    val players: List<FixturePlayerDtoList>
+    val players: List<FixturePlayerDtoList>,
+    val result: FixtureResult
 )
 
 data class FixtureDtoList(
     val id: Long,
     val time: LocalDateTime,
     val homeTeam: TeamDtoList,
-    val awayTeam: TeamDtoList
+    val awayTeam: TeamDtoList,
+    val result: FixtureResult
 )
 
 data class CreateFixtureDto(
@@ -70,6 +76,20 @@ data class UpdateFixtureDto(
     val awayTeam: Long?,
 )
 
+data class FixtureResult(val homeTeam: Int, val awayTeam: Int)
+
+fun Fixture.getResult(): FixtureResult {
+    var homeTeam = 0
+    var awayTeam = 0
+    this.events.filter { fixtureEvent -> fixtureEvent.type == EFixtureEvent.GOAL }.forEach { fixtureEvent ->
+        run {
+            if (fixtureEvent.team?.id == this.homeTeam.id) homeTeam++
+            if (fixtureEvent.team?.id == this.awayTeam.id) awayTeam++
+        }
+    }
+    return FixtureResult(homeTeam, awayTeam)
+}
+
 fun Fixture.toFixtureDto() =
     FixtureDto(
         this.id,
@@ -79,7 +99,8 @@ fun Fixture.toFixtureDto() =
         this.homeTeam.toTeamDtoList(),
         this.awayTeam.toTeamDtoList(),
         this.season.toSeasonDtoList(),
-        this.players.map { player -> player.toFixturePlayerDtoList() }
+        this.players.map { player -> player.toFixturePlayerDtoList() },
+        this.getResult()
     )
 
 fun Fixture.toFixtureDtoList() =
@@ -87,5 +108,6 @@ fun Fixture.toFixtureDtoList() =
         this.id,
         this.time,
         this.homeTeam.toTeamDtoList(),
-        this.awayTeam.toTeamDtoList()
+        this.awayTeam.toTeamDtoList(),
+        this.getResult()
     )

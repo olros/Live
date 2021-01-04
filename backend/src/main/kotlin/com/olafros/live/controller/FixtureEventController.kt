@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.FixtureEventRepository
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/fixtures/{fixtureId}/events")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.FIXTURES}/{fixtureId}/${APIConstants.EVENTS}")
 class FixtureEventController(
     val fixtureRepository: FixtureRepository,
     val playerRepository: PlayerRepository,
@@ -36,6 +37,7 @@ class FixtureEventController(
     }
 
     fun isValidFixtureEvent(event: FixtureEvent): Boolean {
+        if (event.minute < 0 || event.minute > 90) return false
         if (event.player1?.id == event.player2?.id) return false
         if (event.team != null) {
             if (event.player1 != null && event.player1?.team?.id != event.team?.id) return false

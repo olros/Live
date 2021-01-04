@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.CreateTeamDto
 import com.olafros.live.model.Team
 import com.olafros.live.model.UpdateTeamDto
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/teams")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.TEAMS}")
 class TeamController(
     val teamRepository: TeamRepository,
     val leagueRepository: LeagueRepository,

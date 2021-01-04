@@ -1,5 +1,6 @@
 package com.olafros.live.security
 
+import com.olafros.live.APIConstants
 import com.olafros.live.security.jwt.AuthEntryPointJwt
 import com.olafros.live.security.jwt.AuthTokenFilter
 import com.olafros.live.security.services.UserDetailsServiceImpl
@@ -48,7 +49,7 @@ class WebSecurityConfig(var userDetailsService: UserDetailsServiceImpl, val unau
             .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .authorizeRequests()
-            .antMatchers("/api/**").permitAll()
+            .antMatchers("/${APIConstants.BASE}/**").permitAll()
             .anyRequest().authenticated()
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)
     }

@@ -49,3 +49,15 @@ fun Season.toSeasonDto(): SeasonDto {
 fun Season.toSeasonDtoList(): SeasonDtoList {
     return SeasonDtoList(this.id, this.name)
 }
+
+data class TableEntryDto(
+    val team: TeamDtoList,
+    var goalsFor: Int = 0,
+    var goalsAgainst: Int = 0,
+    var wins: Int = 0,
+    var draws: Int = 0,
+    var losses: Int = 0,
+    var played: Int = 0,
+    var points: Int = 0,
+    var rank: Int = 0,
+)

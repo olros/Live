@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.FixturePlayerRepository
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/fixtures/{fixtureId}/players")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.FIXTURES}/{fixtureId}/${APIConstants.PLAYERS}")
 class FixturePlayerController(
     val fixtureRepository: FixtureRepository,
     val playerRepository: PlayerRepository,

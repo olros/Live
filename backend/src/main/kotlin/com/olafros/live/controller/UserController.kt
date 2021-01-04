@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.UpdateUserDto
 import com.olafros.live.model.User
 import com.olafros.live.model.toUserDto
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.USERS}")
 class UserController(val userRepository: UserRepository, val securityService: SecurityService) {
 
     @GetMapping

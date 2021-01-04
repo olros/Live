@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.*
 import com.olafros.live.payload.response.MessageResponse
 import com.olafros.live.repository.PlayerRepository
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/teams/{teamId}/players")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.TEAMS}/{teamId}/${APIConstants.PLAYERS}")
 class TeamPlayerController(
     val teamRepository: TeamRepository,
     val playerRepository: PlayerRepository,

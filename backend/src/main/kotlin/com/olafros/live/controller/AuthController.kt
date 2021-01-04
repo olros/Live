@@ -1,5 +1,6 @@
 package com.olafros.live.controller
 
+import com.olafros.live.APIConstants
 import com.olafros.live.model.CreateUserDto
 import com.olafros.live.model.User
 import com.olafros.live.payload.request.LoginRequest
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/${APIConstants.BASE}/${APIConstants.AUTH}")
 class AuthController(
     private val authenticationManager: AuthenticationManager,
     private val userRepository: UserRepository,
