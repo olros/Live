@@ -33,4 +33,4 @@ jobs:
         app-name: 'liveappbackend'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_5ac9e7f0f5a049e7bf8d79c8a4377142 }}
-        package: '${{ github.workspace }}/build/libs/*.jar'
+        package: '${{ github.workspace }}/backend/build/libs/*.jar'
