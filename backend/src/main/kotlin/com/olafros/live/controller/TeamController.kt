@@ -47,8 +47,8 @@ class TeamController(
             ResponseEntity.status(HttpStatus.CONFLICT)
                 .body<Any>(MessageResponse("This league already contains a team with this name"))
         } else {
-            val newTeam = Team(0, newTeam.name, newTeam.logo, newTeam.description, mutableListOf(), league)
-            ResponseEntity.ok().body(teamRepository.save(newTeam).toTeamDto())
+            val team = Team(0, newTeam.name, newTeam.logo, newTeam.description, mutableListOf(), league)
+            ResponseEntity.ok().body(teamRepository.save(team).toTeamDto())
         }
     }
 

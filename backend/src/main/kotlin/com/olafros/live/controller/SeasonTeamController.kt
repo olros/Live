@@ -40,7 +40,7 @@ class SeasonTeamController(
                     .body<Any>(MessageResponse("Could not find ${team.name} in this league"))
             else -> {
                 season.teams.add(team)
-                ResponseEntity.ok().body(seasonRepository.save(season).teams.map { team -> team.toTeamDtoList() })
+                ResponseEntity.ok().body(seasonRepository.save(season).teams.map { t -> t.toTeamDtoList() })
             }
         }
     }
@@ -56,7 +56,7 @@ class SeasonTeamController(
             if (team != null) {
                 season.teams.remove(team)
                 seasonRepository.save(season)
-                ResponseEntity.ok().body(seasonRepository.save(season).teams.map { team -> team.toTeamDtoList() })
+                ResponseEntity.ok().body(seasonRepository.save(season).teams.map { t -> t.toTeamDtoList() })
             } else {
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body<Any>(MessageResponse("Could not find the team to remove from the season"))
