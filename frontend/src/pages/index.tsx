@@ -14,7 +14,7 @@ export default function Home() {
       </Head>
 
       <Navigation>
-        <Button variant='outlined'>Button</Button>
+        <Button variant='outlined'>Button</Button>s
       </Navigation>
     </>
   );

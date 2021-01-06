@@ -2,20 +2,13 @@ import URLS from 'URLS';
 
 // Material UI Components
 import { makeStyles } from '@material-ui/core/styles';
-import Hidden from '@material-ui/core/Hidden';
-import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import Avatar from '@material-ui/core/Avatar';
 
 // Assets/Icons
-import LOGO from 'assets/img/logo.png';
 import AccountIcon from '@material-ui/icons/AccountCircleOutlined';
-import EventIcon from '@material-ui/icons/Event';
-import ChallengeIcon from '@material-ui/icons/EmojiEventsRounded';
-import PlayerIcon from '@material-ui/icons/PlayArrowRounded';
 
 // Project components
-import Link from 'components/navigation/link';
+import Link from 'components/navigation/Link';
 import Paper from 'components/layout/Paper';
 
 const useStyles = makeStyles((theme) => ({

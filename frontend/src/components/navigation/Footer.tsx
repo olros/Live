@@ -1,9 +1,5 @@
-import Link from 'next/link';
-import URLS from 'URLS';
-
 // Material UI Components
 import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles((theme) => ({
