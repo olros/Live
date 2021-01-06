@@ -64,6 +64,7 @@ class WebSecurityConfig(var userDetailsService: UserDetailsServiceImpl, val unau
             "/swagger-resources/**",
             "/configuration/security",
             "/swagger-ui.html",
+            "/docs",
             "/swagger-ui/**",
             "/webjars/**"
         )
