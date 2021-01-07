@@ -2,7 +2,8 @@ package com.olafros.live.controller
 
 import com.olafros.live.APIConstants
 import com.olafros.live.model.*
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
+import com.olafros.live.payload.response.SuccessResponse
 import com.olafros.live.repository.LeagueRepository
 import com.olafros.live.repository.SeasonRepository
 import com.olafros.live.security.authorize.SecurityService
@@ -24,7 +25,7 @@ class SeasonController(
     fun getSeasonById(@PathVariable seasonId: Long): ResponseEntity<*> {
         val season = seasonRepository.findSeasonById(seasonId)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the season"))
+                .body<Any>(ErrorResponse("Could not find the season"))
         return ResponseEntity.ok(season.toSeasonDto())
     }
 
@@ -32,7 +33,7 @@ class SeasonController(
     fun getSeasonFixturesById(@PathVariable seasonId: Long): ResponseEntity<*> {
         val season = seasonRepository.findSeasonById(seasonId)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the season"))
+                .body<Any>(ErrorResponse("Could not find the season"))
         return ResponseEntity.ok(season.fixtures.map { fixture -> fixture.toFixtureDtoList() })
     }
 
@@ -40,7 +41,7 @@ class SeasonController(
     fun getSeasonTableById(@PathVariable seasonId: Long): ResponseEntity<*> {
         val season = seasonRepository.findSeasonById(seasonId)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the season"))
+                .body<Any>(ErrorResponse("Could not find the season"))
         val table: MutableList<TableEntryDto> = mutableListOf()
         season.teams.forEach { team -> table.add(TableEntryDto(team.toTeamDtoList())) }
         season.fixtures.forEach { fixture ->
@@ -66,9 +67,10 @@ class SeasonController(
                 }
             }
         }
-        val sortedTable = table.sortedWith(compareByDescending<TableEntryDto> { it.points }.thenByDescending { it.goalsFor - it.goalsAgainst })
+        val sortedTable =
+            table.sortedWith(compareByDescending<TableEntryDto> { it.points }.thenByDescending { it.goalsFor - it.goalsAgainst })
         var rank = 1
-        val tableWithRank = sortedTable.map { entry -> entry.copy( rank = rank++ ) }
+        val tableWithRank = sortedTable.map { entry -> entry.copy(rank = rank++) }
         return ResponseEntity.ok(tableWithRank)
     }
 
@@ -77,11 +79,11 @@ class SeasonController(
     fun createNewSeason(@Valid @RequestBody season: CreateSeasonDto): ResponseEntity<*> {
         if (!securityService.hasLeagueAccess(season.leagueId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body<Any>(MessageResponse("You're not allowed to create a season in this league"))
+                .body<Any>(ErrorResponse("You're not allowed to create a season in this league"))
         }
         val league = leagueRepository.findLeagueById(season.leagueId)
         return if (league == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the league"))
         } else {
             val teams: MutableList<Team> = mutableListOf()
             val newSeason = Season(0, season.name, teams, league)
@@ -103,7 +105,7 @@ class SeasonController(
             ResponseEntity.ok().body(seasonRepository.save(updatedSeason).toSeasonDto())
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the season to update"))
+                .body<Any>(ErrorResponse("Could not find the season to update"))
         }
     }
 
@@ -115,10 +117,10 @@ class SeasonController(
         val season = seasonRepository.findSeasonById(seasonId)
         return if (season != null) {
             seasonRepository.delete(season)
-            ResponseEntity.ok<Any>(MessageResponse("Season successfully deleted"))
+            ResponseEntity.ok<Any>(SuccessResponse("Season successfully deleted"))
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the season to delete"))
+                .body<Any>(ErrorResponse("Could not find the season to delete"))
         }
     }
 }

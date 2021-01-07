@@ -5,7 +5,7 @@ import com.olafros.live.model.AddLeagueAdminDto
 import com.olafros.live.model.Team
 import com.olafros.live.model.UserDtoList
 import com.olafros.live.model.toUserDtoList
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
 import com.olafros.live.repository.TeamRepository
 import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
@@ -30,7 +30,7 @@ class TeamAdminController(
     fun getAllTeamAdmins(@PathVariable teamId: Long): ResponseEntity<*> {
         val team = teamRepository.findTeamById(teamId)
         return if (team == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the team"))
         } else {
             ResponseEntity.ok().body(getTeamAdminsList(team))
         }
@@ -43,12 +43,12 @@ class TeamAdminController(
         val user = securityService.getUser(newAdmin.email)
         return when {
             (team == null) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the team"))
             (user == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the user to add as admin"))
+                    .body<Any>(ErrorResponse("Could not find the user to add as admin"))
             (team.admins.any { admin -> admin.id == user.id }) ->
-                ResponseEntity.status(HttpStatus.CONFLICT).body<Any>(MessageResponse("The user is already admin"))
+                ResponseEntity.status(HttpStatus.CONFLICT).body<Any>(ErrorResponse("The user is already admin"))
             else -> {
                 team.admins.add(user)
                 teamRepository.save(team)
@@ -62,7 +62,7 @@ class TeamAdminController(
     fun deleteTeamAdmin(@PathVariable teamId: Long, @PathVariable adminId: Long): ResponseEntity<*> {
         val team = teamRepository.findTeamById(teamId)
         return if (team == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the team"))
         } else {
             val user = team.admins.find { user -> user.id == adminId }
             if (user != null) {
@@ -71,7 +71,7 @@ class TeamAdminController(
                 ResponseEntity.ok().body(getTeamAdminsList(team))
             } else {
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the user to remove as admin"))
+                    .body<Any>(ErrorResponse("Could not find the user to remove as admin"))
             }
         }
     }

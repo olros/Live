@@ -15,13 +15,17 @@
     "@material-ui/core": "^5.0.0-alpha.22",
     "@material-ui/icons": "^5.0.0-alpha.22",
     "classnames": "^2.2.6",
+    "cookie": "^0.4.1",
     "date-fns": "^2.16.1",
+    "js-cookie": "^2.2.1",
     "next": "10.0.4",
     "react": "17.0.1",
     "react-dom": "17.0.1"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.11",
+    "@types/cookie": "^0.4.0",
+    "@types/js-cookie": "^2.2.6",
     "@types/node": "^14.14.20",
     "@types/react": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^4.12.0",

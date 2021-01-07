@@ -2,7 +2,8 @@ package com.olafros.live.controller
 
 import com.olafros.live.APIConstants
 import com.olafros.live.model.*
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
+import com.olafros.live.payload.response.SuccessResponse
 import com.olafros.live.repository.FixtureEventRepository
 import com.olafros.live.repository.FixtureRepository
 import com.olafros.live.repository.PlayerRepository
@@ -33,7 +34,7 @@ class FixtureEventController(
     fun getFixtureEvent(@PathVariable fixtureId: Long, @PathVariable eventId: Long): ResponseEntity<*> {
         val event = fixtureEventRepository.findFixtureEventById(eventId)
         return if (event != null && event.fixture.id == fixtureId) ResponseEntity.ok(event.toFixtureEventDto())
-        else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the event"))
+        else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the event"))
     }
 
     fun isValidFixtureEvent(event: FixtureEvent): Boolean {
@@ -58,21 +59,21 @@ class FixtureEventController(
     ): ResponseEntity<*> {
         val fixture = fixtureRepository.findFixtureById(fixtureId)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the fixture"))
+                .body<Any>(ErrorResponse("Could not find the fixture"))
         val player1 = if (newEvent.player1 != null) {
             playerRepository.findPlayerById(newEvent.player1)
                 ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the player with id: ${newEvent.player1}"))
+                    .body<Any>(ErrorResponse("Could not find the player with id: ${newEvent.player1}"))
         } else null
         val player2 = if (newEvent.player2 != null) {
             playerRepository.findPlayerById(newEvent.player2)
                 ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the player with id: ${newEvent.player2}"))
+                    .body<Any>(ErrorResponse("Could not find the player with id: ${newEvent.player2}"))
         } else null
         val team = if (newEvent.team != null) {
             teamRepository.findTeamById(newEvent.team)
                 ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the team with id: ${newEvent.team}"))
+                    .body<Any>(ErrorResponse("Could not find the team with id: ${newEvent.team}"))
         } else null
 
         val fixtureEvent = FixtureEvent(
@@ -88,7 +89,7 @@ class FixtureEventController(
         return if (isValidFixtureEvent(fixtureEvent))
             ResponseEntity.ok().body(fixtureEventRepository.save(fixtureEvent).toFixtureEventDto())
         else ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body<Any>(MessageResponse("The event is not valid"))
+            .body<Any>(ErrorResponse("The event is not valid"))
     }
 
     @PutMapping("/{eventId}")
@@ -99,21 +100,21 @@ class FixtureEventController(
         @Valid @RequestBody newEvent: UpdateFixtureEventDto
     ): ResponseEntity<*> {
         val fixtureEvent = fixtureEventRepository.findFixtureEventById(eventId)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the event"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the event"))
         val player1 = if (newEvent.player1 != null) {
             playerRepository.findPlayerById(newEvent.player1)
                 ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the player with id: ${newEvent.player1}"))
+                    .body<Any>(ErrorResponse("Could not find the player with id: ${newEvent.player1}"))
         } else fixtureEvent.player1
         val player2 = if (newEvent.player2 != null) {
             playerRepository.findPlayerById(newEvent.player2)
                 ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the player with id: ${newEvent.player2}"))
+                    .body<Any>(ErrorResponse("Could not find the player with id: ${newEvent.player2}"))
         } else fixtureEvent.player2
         val team = if (newEvent.team != null) {
             teamRepository.findTeamById(newEvent.team)
                 ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the team with id: ${newEvent.team}"))
+                    .body<Any>(ErrorResponse("Could not find the team with id: ${newEvent.team}"))
         } else fixtureEvent.team
 
         val updatedFixtureEvent = fixtureEvent.copy(
@@ -127,16 +128,16 @@ class FixtureEventController(
         return if (isValidFixtureEvent(updatedFixtureEvent))
             ResponseEntity.ok().body(fixtureEventRepository.save(updatedFixtureEvent).toFixtureEventDto())
         else ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body<Any>(MessageResponse("The event is not valid"))
+            .body<Any>(ErrorResponse("The event is not valid"))
     }
 
     @DeleteMapping("/{eventId}")
     @PreAuthorize("isAuthenticated() and @securityService.hasFixtureAccess(#fixtureId)")
     fun deleteLeagueAdmin(@PathVariable fixtureId: Long, @PathVariable eventId: Long): ResponseEntity<*> {
         val event = fixtureEventRepository.findFixtureEventById(eventId)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the event"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the event"))
 
         fixtureEventRepository.delete(event)
-        return ResponseEntity.ok<Any>(MessageResponse("Event successfully deleted"))
+        return ResponseEntity.ok<Any>(SuccessResponse("Event successfully deleted"))
     }
 }

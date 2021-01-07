@@ -2,7 +2,7 @@ package com.olafros.live.controller
 
 import com.olafros.live.APIConstants
 import com.olafros.live.model.*
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
 import com.olafros.live.repository.PlayerRepository
 import com.olafros.live.repository.TeamRepository
 import org.springframework.http.HttpStatus
@@ -29,7 +29,7 @@ class TeamPlayerController(
         return if (player != null)
             ResponseEntity.ok(player.toPlayerDto())
         else
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the player"))
     }
 
     @PostMapping
@@ -37,7 +37,7 @@ class TeamPlayerController(
     fun addTeamPlayer(@PathVariable teamId: Long, @Valid @RequestBody newPlayer: CreatePlayerDto): ResponseEntity<*> {
         val team = teamRepository.findTeamById(teamId)
         return if (team == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the team"))
         } else {
             val player = Player(0, newPlayer.name, newPlayer.position, newPlayer.number, newPlayer.active, team)
             ResponseEntity.ok().body(playerRepository.save(player).toPlayerDto())
@@ -62,7 +62,7 @@ class TeamPlayerController(
             ResponseEntity.ok().body(playerRepository.save(updatedPlayer).toPlayerDto())
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the player to update"))
+                .body<Any>(ErrorResponse("Could not find the player to update"))
         }
     }
 }

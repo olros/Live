@@ -2,7 +2,7 @@ package com.olafros.live.controller
 
 import com.olafros.live.APIConstants
 import com.olafros.live.model.*
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
 import com.olafros.live.repository.SeasonRepository
 import com.olafros.live.repository.TeamRepository
 import org.springframework.http.HttpStatus
@@ -32,12 +32,12 @@ class SeasonTeamController(
         val team = teamRepository.findTeamById(newTeam.teamId)
         return when {
             (season == null) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the season"))
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the season"))
             (team == null) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the home-team"))
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the home-team"))
             (!isValidTeam(team, team.league)) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find ${team.name} in this league"))
+                    .body<Any>(ErrorResponse("Could not find ${team.name} in this league"))
             else -> {
                 season.teams.add(team)
                 ResponseEntity.ok().body(seasonRepository.save(season).teams.map { t -> t.toTeamDtoList() })
@@ -50,7 +50,7 @@ class SeasonTeamController(
     fun deleteTeamById(@PathVariable seasonId: Long, @PathVariable teamId: Long): ResponseEntity<*> {
         val season = seasonRepository.findSeasonById(seasonId)
         return if (season == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the season"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the season"))
         } else {
             val team = season.teams.find { team -> team.id == teamId }
             if (team != null) {
@@ -59,7 +59,7 @@ class SeasonTeamController(
                 ResponseEntity.ok().body(seasonRepository.save(season).teams.map { t -> t.toTeamDtoList() })
             } else {
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the team to remove from the season"))
+                    .body<Any>(ErrorResponse("Could not find the team to remove from the season"))
             }
         }
     }

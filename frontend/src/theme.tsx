@@ -32,6 +32,20 @@ const theme = createMuiTheme({
       paper: '#161b22',
     },
   },
+  typography: {
+    fontFamily: 'Inter, sans-serif',
+    h1: {
+      fontSize: '3.1rem',
+      fontWeight: 900,
+    },
+    h2: {
+      fontSize: '2.2rem',
+      fontWeight: 700,
+    },
+    h3: {
+      fontSize: '1.5rem',
+    },
+  },
 });
 
 export default theme;

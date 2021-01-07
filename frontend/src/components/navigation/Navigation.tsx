@@ -25,16 +25,17 @@ const useStyles = makeStyles((theme) => ({
 export type NavigationProps = {
   children?: ReactNode;
   isLoading?: boolean;
+  noTopbar?: boolean;
   noFooter?: boolean;
   maxWidth?: false | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 };
 
-function Navigation({ children, isLoading, noFooter, maxWidth }: NavigationProps) {
+const Navigation = ({ children, isLoading, noFooter, noTopbar, maxWidth }: NavigationProps) => {
   const classes = useStyles();
 
   return (
     <>
-      <TopBar />
+      {!noTopbar && <TopBar />}
       {isLoading ? (
         <LinearProgress />
       ) : (
@@ -59,7 +60,7 @@ function Navigation({ children, isLoading, noFooter, maxWidth }: NavigationProps
         ))}
     </>
   );
-}
+};
 
 Navigation.propTypes = {
   children: PropTypes.node,

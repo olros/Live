@@ -5,7 +5,8 @@ import com.olafros.live.model.CreateUserDto
 import com.olafros.live.model.User
 import com.olafros.live.payload.request.LoginRequest
 import com.olafros.live.payload.response.JwtResponse
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
+import com.olafros.live.payload.response.SuccessResponse
 import com.olafros.live.repository.UserRepository
 import com.olafros.live.security.jwt.JwtUtils
 import org.springframework.http.HttpStatus
@@ -44,12 +45,12 @@ class AuthController(
         if (userRepository.existsByEmail(signUpRequest.email)) {
             return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body<Any>(MessageResponse("Email is already in use!"))
+                .body<Any>(ErrorResponse("Email is already in use!"))
         }
 
         // Create new user's account
         val user = User(0, signUpRequest.name, signUpRequest.email, encoder.encode(signUpRequest.password))
         userRepository.save<User>(user)
-        return ResponseEntity.ok<Any>(MessageResponse("User registered successfully!"))
+        return ResponseEntity.ok<Any>(SuccessResponse("User registered successfully!"))
     }
 }

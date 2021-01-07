@@ -5,19 +5,19 @@ import Divider from '@material-ui/core/Divider';
 const useStyles = makeStyles((theme) => ({
   content: {
     width: '100%',
-    padding: 40,
+    padding: theme.spacing(4),
     margin: 'auto',
   },
   logo: {
     width: '60%',
-    maxWidth: 300,
+    maxWidth: 200,
     objectFit: 'contain',
     margin: 'auto',
     display: 'block',
   },
 }));
 
-function Footer() {
+const Footer = () => {
   const classes = useStyles();
 
   return (
@@ -28,6 +28,6 @@ function Footer() {
       </div>
     </>
   );
-}
+};
 
 export default Footer;

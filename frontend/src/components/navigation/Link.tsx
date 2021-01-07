@@ -5,14 +5,26 @@ import Link from 'next/link';
 
 interface IProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   to: string;
+  children: React.ReactElement;
+  passHref?: boolean;
   prefetch?: boolean;
   className?: string;
 }
 
-export default React.forwardRef(({ to, prefetch, className, ...props }: IProps, ref: any) => {
-  return (
-    <Link href={to} prefetch={prefetch || false}>
-      <a {...props} className={className} ref={ref} />
-    </Link>
-  );
+export default React.forwardRef(({ children, to, passHref = false, prefetch, className, ...props }: IProps, ref: any) => {
+  if (passHref) {
+    return (
+      <Link href={to} passHref prefetch={prefetch || false}>
+        {React.cloneElement(children, { ...props, className: className, ref: ref })}
+      </Link>
+    );
+  } else {
+    return (
+      <Link href={to} prefetch={prefetch || false}>
+        <a {...props} className={className} ref={ref}>
+          {children}
+        </a>
+      </Link>
+    );
+  }
 });

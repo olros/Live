@@ -5,7 +5,7 @@ import com.olafros.live.model.AddLeagueAdminDto
 import com.olafros.live.model.League
 import com.olafros.live.model.UserDtoList
 import com.olafros.live.model.toUserDtoList
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
 import com.olafros.live.repository.LeagueRepository
 import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
@@ -30,7 +30,7 @@ class LeagueAdminController(
     fun getAllLeagueAdmins(@PathVariable leagueId: Long): ResponseEntity<*> {
         val league = leagueRepository.findLeagueById(leagueId)
         return if (league == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the league"))
         } else {
             ResponseEntity.ok().body(getLeagueAdminsList(league))
         }
@@ -46,12 +46,12 @@ class LeagueAdminController(
         val user = securityService.getUser()
         return when {
             (league == null) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the league"))
             (user == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the user to add as admin"))
+                    .body<Any>(ErrorResponse("Could not find the user to add as admin"))
             (league.admins.any { admin -> admin.id == user.id }) ->
-                ResponseEntity.status(HttpStatus.CONFLICT).body<Any>(MessageResponse("The user is already admin"))
+                ResponseEntity.status(HttpStatus.CONFLICT).body<Any>(ErrorResponse("The user is already admin"))
             else -> {
                 league.admins.add(user)
                 leagueRepository.save(league)
@@ -65,10 +65,10 @@ class LeagueAdminController(
     fun deleteLeagueAdmin(@PathVariable leagueId: Long, @PathVariable adminId: Long): ResponseEntity<*> {
         val league = leagueRepository.findLeagueById(leagueId)
         return if (league == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the league"))
         } else if (league.admins.size <= 1) {
             ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body<Any>(MessageResponse("There must be at least 1 admin left in the league"))
+                .body<Any>(ErrorResponse("There must be at least 1 admin left in the league"))
         } else {
             val user = league.admins.find { user -> user.id == adminId }
             if (user != null) {
@@ -77,7 +77,7 @@ class LeagueAdminController(
                 ResponseEntity.ok().body(getLeagueAdminsList(league))
             } else {
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("Could not find the user to remove as admin"))
+                    .body<Any>(ErrorResponse("Could not find the user to remove as admin"))
             }
         }
     }

@@ -1,21 +1,59 @@
-import Head from 'next/head';
+import { GetServerSideProps } from 'next';
+import URLS from 'URLS';
+import { getAuthToken } from 'utils';
+import { IFixtureCompact } from 'types/Fixture';
+import FixtureAPI from 'api/FixtureAPI';
 
 // Material UI
-import Button from '@material-ui/core/Button';
+import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 // Project
 import Navigation from 'components/navigation/Navigation';
+import LinkGradientCard from 'components/layout/LinkGradientCard';
 
-export default function Home() {
+const useStyles = makeStyles((theme) => ({
+  topMargin: {
+    marginTop: theme.spacing(5),
+  },
+}));
+
+export type IProps = {
+  isAuthed: boolean;
+  fixtures: Array<IFixtureCompact>;
+};
+
+const Landing = ({ fixtures, isAuthed }: IProps) => {
+  // eslint-disable-next-line no-console
+  console.log(fixtures, isAuthed);
+  const classes = useStyles();
   return (
     <>
-      <Head>
-        <title>Live - Hjem</title>
-      </Head>
-
       <Navigation>
-        <Button variant='outlined'>Button</Button>s
+        <LinkGradientCard className={classes.topMargin} gradientFrom='#8A2387' gradientTo='#E94057' to={URLS.PROFILE}>
+          <Typography align='center' variant='h2'>
+            {isAuthed ? 'Profil' : 'Logg inn'}
+          </Typography>
+        </LinkGradientCard>
       </Navigation>
     </>
   );
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const token = getAuthToken(req.headers.cookie);
+  try {
+    const fixtures: Array<IFixtureCompact> = await FixtureAPI.getAllFixtures();
+    const data: IProps = { isAuthed: Boolean(token), fixtures };
+    return {
+      props: data,
+    };
+  } catch (e) {
+    const data: IProps = { isAuthed: Boolean(token), fixtures: [] };
+    return {
+      props: data,
+    };
+  }
+};
+
+export default Landing;

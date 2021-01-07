@@ -4,6 +4,6 @@ export default {
   FIXTURES: '/fixtures/',
   SEASONS: '/seasons/',
   TEAMS: '/teams/',
-  AUTH: '/auth/',
+  PROFILE: '/profile/',
   PLAYERS: '/players/',
 };

@@ -2,7 +2,7 @@ package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonManagedReference
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import javax.persistence.*
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
@@ -15,7 +15,7 @@ data class Fixture(
     var id: Long = 0,
     var location: @Size(max = 128) String?,
     var referee: @Size(max = 128) String?,
-    var time: @NotNull LocalDateTime,
+    var time: @NotNull OffsetDateTime,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "season_id", nullable = false)
@@ -43,7 +43,7 @@ data class FixtureDto(
     val id: Long,
     val location: String?,
     val referee: String?,
-    val time: LocalDateTime,
+    val time: OffsetDateTime,
     val homeTeam: TeamDtoList,
     val awayTeam: TeamDtoList,
     val season: SeasonDtoList,
@@ -53,7 +53,7 @@ data class FixtureDto(
 
 data class FixtureDtoList(
     val id: Long,
-    val time: LocalDateTime,
+    val time: OffsetDateTime,
     val homeTeam: TeamDtoList,
     val awayTeam: TeamDtoList,
     val result: FixtureResult
@@ -62,7 +62,7 @@ data class FixtureDtoList(
 data class CreateFixtureDto(
     val location: String?,
     val referee: String?,
-    val time: LocalDateTime,
+    val time: OffsetDateTime,
     val homeTeam: Long,
     val awayTeam: Long,
     val seasonId: Long,
@@ -71,7 +71,7 @@ data class CreateFixtureDto(
 data class UpdateFixtureDto(
     val location: String?,
     val referee: String?,
-    val time: LocalDateTime?,
+    val time: OffsetDateTime?,
     val homeTeam: Long?,
     val awayTeam: Long?,
 )

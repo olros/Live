@@ -2,7 +2,8 @@ package com.olafros.live.controller
 
 import com.olafros.live.APIConstants
 import com.olafros.live.model.*
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
+import com.olafros.live.payload.response.SuccessResponse
 import com.olafros.live.repository.FixturePlayerRepository
 import com.olafros.live.repository.FixtureRepository
 import com.olafros.live.repository.PlayerRepository
@@ -31,7 +32,7 @@ class FixturePlayerController(
     fun getFixturePlayer(@PathVariable fixtureId: Long, @PathVariable playerId: Long): ResponseEntity<*> {
         val player = fixturePlayerRepository.findFixturePlayerById(playerId)
         return if (player != null && player.fixture.id == fixtureId) ResponseEntity.ok(player.toFixturePlayerDto())
-        else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
+        else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the player"))
     }
 
     @PostMapping
@@ -44,12 +45,12 @@ class FixturePlayerController(
         val fixture = fixtureRepository.findFixtureById(fixtureId)
         return when {
             (player == null) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the player"))
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the player"))
             (fixture == null) ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the fixture"))
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the fixture"))
             (fixture.players.any { p -> p.player.id == newPlayer.playerId }) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body<Any>(MessageResponse("The player is already playing in this fixture"))
+                    .body<Any>(ErrorResponse("The player is already playing in this fixture"))
             else -> {
                 val fixturePlayer = FixturePlayer(
                     0,
@@ -72,7 +73,7 @@ class FixturePlayerController(
     ): ResponseEntity<*> {
         val player = fixturePlayerRepository.findFixturePlayerById(playerId)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the player"))
+                .body<Any>(ErrorResponse("Could not find the player"))
         val updatedFixturePlayer = player.copy(
             number = newPlayer.number ?: player.number,
             position = newPlayer.position ?: player.position,
@@ -85,8 +86,8 @@ class FixturePlayerController(
     fun deleteLeagueAdmin(@PathVariable fixtureId: Long, @PathVariable playerId: Long): ResponseEntity<*> {
         val player = fixturePlayerRepository.findFixturePlayerById(playerId)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the player"))
+                .body<Any>(ErrorResponse("Could not find the player"))
         fixturePlayerRepository.delete(player)
-        return ResponseEntity.ok<Any>(MessageResponse("Fixture player successfully deleted"))
+        return ResponseEntity.ok<Any>(SuccessResponse("Fixture player successfully deleted"))
     }
 }

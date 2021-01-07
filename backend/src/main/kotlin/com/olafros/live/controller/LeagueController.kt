@@ -2,7 +2,8 @@ package com.olafros.live.controller
 
 import com.olafros.live.APIConstants
 import com.olafros.live.model.*
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
+import com.olafros.live.payload.response.SuccessResponse
 import com.olafros.live.repository.LeagueRepository
 import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
@@ -27,7 +28,7 @@ class LeagueController(
         return if (league != null) {
             ResponseEntity.ok(league.toLeagueDto())
         } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the league"))
         }
     }
 
@@ -40,7 +41,7 @@ class LeagueController(
             admins.add(user)
             val newLeague = League(0, league.name, admins)
             ResponseEntity.ok().body(leagueRepository.save(newLeague).toLeagueDto())
-        } else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
+        } else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find user"))
     }
 
     @PutMapping("/{leagueId}")
@@ -55,7 +56,7 @@ class LeagueController(
             ResponseEntity.ok().body(leagueRepository.save(updatedLeague).toLeagueDto())
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the league to update"))
+                .body<Any>(ErrorResponse("Could not find the league to update"))
         }
     }
 
@@ -65,10 +66,10 @@ class LeagueController(
         val league = leagueRepository.findLeagueById(leagueId)
         return if (league != null) {
             leagueRepository.delete(league)
-            ResponseEntity.ok<Any>(MessageResponse("League successfully deleted"))
+            ResponseEntity.ok<Any>(SuccessResponse("League successfully deleted"))
         } else {
             ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body<Any>(MessageResponse("Could not find the league to delete"))
+                .body<Any>(ErrorResponse("Could not find the league to delete"))
         }
     }
 }

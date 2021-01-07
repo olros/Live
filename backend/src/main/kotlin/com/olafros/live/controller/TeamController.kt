@@ -5,7 +5,8 @@ import com.olafros.live.model.CreateTeamDto
 import com.olafros.live.model.Team
 import com.olafros.live.model.UpdateTeamDto
 import com.olafros.live.model.toTeamDto
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
+import com.olafros.live.payload.response.SuccessResponse
 import com.olafros.live.repository.LeagueRepository
 import com.olafros.live.repository.TeamRepository
 import com.olafros.live.security.authorize.SecurityService
@@ -29,7 +30,7 @@ class TeamController(
         return if (team != null) {
             ResponseEntity.ok(team.toTeamDto())
         } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the team"))
         }
     }
 
@@ -38,14 +39,14 @@ class TeamController(
     fun createNewTeam(@Valid @RequestBody newTeam: CreateTeamDto): ResponseEntity<*> {
         if (!securityService.hasLeagueAccess(newTeam.leagueId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body<Any>(MessageResponse("You're not allowed to create a team in this league"))
+                .body<Any>(ErrorResponse("You're not allowed to create a team in this league"))
         }
         val league = leagueRepository.findLeagueById(newTeam.leagueId)
         return if (league == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the league"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the league"))
         } else if (league.teams.any { team -> team.name == newTeam.name }) {
             ResponseEntity.status(HttpStatus.CONFLICT)
-                .body<Any>(MessageResponse("This league already contains a team with this name"))
+                .body<Any>(ErrorResponse("This league already contains a team with this name"))
         } else {
             val team = Team(0, newTeam.name, newTeam.logo, newTeam.description, mutableListOf(), league)
             ResponseEntity.ok().body(teamRepository.save(team).toTeamDto())
@@ -64,7 +65,7 @@ class TeamController(
             )
             ResponseEntity.ok().body(teamRepository.save(updatedTeam).toTeamDto())
         } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team to update"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the team to update"))
         }
     }
 
@@ -74,9 +75,9 @@ class TeamController(
         val team = teamRepository.findTeamById(teamId)
         return if (team != null) {
             teamRepository.delete(team)
-            ResponseEntity.ok<Any>(MessageResponse("Team successfully deleted"))
+            ResponseEntity.ok<Any>(SuccessResponse("Team successfully deleted"))
         } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find the team to delete"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the team to delete"))
         }
     }
 }

@@ -4,7 +4,7 @@ import com.olafros.live.APIConstants
 import com.olafros.live.model.UpdateUserDto
 import com.olafros.live.model.User
 import com.olafros.live.model.toUserDto
-import com.olafros.live.payload.response.MessageResponse
+import com.olafros.live.payload.response.ErrorResponse
 import com.olafros.live.repository.UserRepository
 import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
@@ -24,7 +24,7 @@ class UserController(val userRepository: UserRepository, val securityService: Se
         return if (user != null)
             ResponseEntity.ok(user.toUserDto())
         else
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find user"))
     }
 
     @PutMapping
@@ -35,6 +35,6 @@ class UserController(val userRepository: UserRepository, val securityService: Se
             val user: User = existingUser.copy(name = updatedUser.name ?: existingUser.name)
             userRepository.save<User>(user)
             ResponseEntity.ok(user.toUserDto())
-        } else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(MessageResponse("Could not find user"))
+        } else ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find user"))
     }
 }
