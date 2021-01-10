@@ -7,13 +7,14 @@ import { SuccessResponse } from 'types/Request';
 export default {
   getAllLeagues: (authToken?: string | undefined) => IFetch<Array<ILeagueCompact>>({ method: 'GET', url: API_LEAGUES, authToken }),
   getLeagueById: (id: number, authToken?: string | undefined) => IFetch<ILeague>({ method: 'GET', url: `${API_LEAGUES}/${id}`, authToken }),
-  createLeague: (newFixture: ICreateLeague) => IFetch<ILeague>({ method: 'POST', url: API_LEAGUES, data: newFixture }),
-  updateLeagueById: (id: number, updatedFixture: IUpdateLeague) => IFetch<ILeague>({ method: 'PUT', url: `${API_LEAGUES}/${id}`, data: updatedFixture }),
+  createLeague: (newLeague: ICreateLeague) => IFetch<ILeague>({ method: 'POST', url: API_LEAGUES, data: newLeague }),
+  updateLeagueById: (id: number, updatedLeague: IUpdateLeague) => IFetch<ILeague>({ method: 'PUT', url: `${API_LEAGUES}/${id}`, data: updatedLeague }),
   deleteLeagueById: (id: number) => IFetch<SuccessResponse>({ method: 'DELETE', url: `${API_LEAGUES}/${id}` }),
+
   addLeagueAdmin: (id: number, newAdmin: IAddLeagueAdmin) =>
-    IFetch<SuccessResponse>({ method: 'POST', url: `${API_LEAGUES}/${id}/${API_ADMINS}`, data: newAdmin }),
+    IFetch<Array<IUserCompact>>({ method: 'POST', url: `${API_LEAGUES}/${id}/${API_ADMINS}`, data: newAdmin }),
   getAllLeagueAdmins: (id: number, authToken?: string | undefined) =>
     IFetch<Array<IUserCompact>>({ method: 'GET', url: `${API_LEAGUES}/${id}/${API_ADMINS}`, authToken }),
   deleteLeagueAdmin: (leagueId: number, userId: number) =>
-    IFetch<SuccessResponse>({ method: 'DELETE', url: `${API_LEAGUES}/${leagueId}/${API_ADMINS}/${userId}` }),
+    IFetch<Array<IUserCompact>>({ method: 'DELETE', url: `${API_LEAGUES}/${leagueId}/${API_ADMINS}/${userId}` }),
 };

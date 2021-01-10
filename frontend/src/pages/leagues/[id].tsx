@@ -1,6 +1,5 @@
 import { GetServerSideProps } from 'next';
 import { useState } from 'react';
-import URLS from 'URLS';
 import { getAuthTokenServer } from 'utils';
 import { ILeague } from 'types/League';
 import LeagueAPI from 'api/LeagueAPI';
@@ -14,6 +13,8 @@ import Navigation from 'components/navigation/Navigation';
 import TopLayout from 'components/layout/TopLayout';
 import Tabs from 'components/layout/Tabs';
 import LeagueAdmin from 'components/leagues/LeagueAdmin';
+import CreateTeam from 'components/teams/CreateTeam';
+import TeamCard from 'components/teams/TeamCard';
 
 export type IProps = {
   league: ILeague;
@@ -24,7 +25,6 @@ enum TABS {
   ADMIN,
 }
 
-// TODO: Change endpoint to pagination
 const League = ({ league }: IProps) => {
   const selectableTabs = [
     { label: 'Main', value: TABS.MAIN },
@@ -37,7 +37,12 @@ const League = ({ league }: IProps) => {
         <Typography variant='h1'>{league.name}</Typography>
         {league.isAdmin && <Tabs selected={selectedTab} setSelected={setSelectedTab} tabs={selectableTabs} />}
       </TopLayout>
-      <Collapse in={selectedTab === TABS.MAIN}></Collapse>
+      <Collapse in={selectedTab === TABS.MAIN}>
+        {league.teams.map((team) => (
+          <TeamCard key={team.id} team={team} />
+        ))}
+        {league.isAdmin && <CreateTeam leagueId={league.id} />}
+      </Collapse>
       <Collapse in={selectedTab === TABS.ADMIN} mountOnEnter>
         <LeagueAdmin league={league} />
       </Collapse>

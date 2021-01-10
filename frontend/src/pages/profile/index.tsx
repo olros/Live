@@ -17,10 +17,13 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 
 // Project
 import Navigation from 'components/navigation/Navigation';
 import CreateLeague from 'components/leagues/CreateLeague';
+import LeagueCard from 'components/leagues/LeagueCard';
+import TeamCard from 'components/teams/TeamCard';
 
 const useStyles = makeStyles((theme) => ({
   field: {
@@ -83,6 +86,7 @@ const NotAuthed = () => {
               inputRef={registerSignIn({ required: 'You must provide an email' })}
               label='Email'
               name='email'
+              required
               type='email'
               variant='outlined'
             />
@@ -95,6 +99,7 @@ const NotAuthed = () => {
               inputRef={registerSignIn({ required: 'You must provide a password' })}
               label='Password'
               name='password'
+              required
               type='password'
               variant='outlined'
             />
@@ -119,6 +124,7 @@ const NotAuthed = () => {
               inputRef={registerSignUp({ required: 'You must provide a name' })}
               label='Name'
               name='name'
+              required
               variant='outlined'
             />
             <TextField
@@ -128,7 +134,9 @@ const NotAuthed = () => {
               fullWidth
               helperText={errorsSignUp.email?.message}
               inputRef={registerSignUp({ required: 'You must provide an email' })}
+              label='Email'
               name='email'
+              required
               type='email'
               variant='outlined'
             />
@@ -144,6 +152,7 @@ const NotAuthed = () => {
               })}
               label='Password'
               name='password'
+              required
               type='password'
               variant='outlined'
             />
@@ -160,7 +169,7 @@ const NotAuthed = () => {
   );
 };
 
-const Authed = () => {
+const Authed = ({ user }: { user: IUser }) => {
   const classes = useStyles();
   const router = useRouter();
   const showSnackbar = useSnackbar();
@@ -175,7 +184,17 @@ const Authed = () => {
   return (
     <Navigation>
       <Typography variant='h1'>Profile</Typography>
+      <Typography variant='h3'>Leagues</Typography>
+      {user.leagues.map((league) => (
+        <LeagueCard key={league.id} league={league} />
+      ))}
       <CreateLeague />
+      <Divider className={classes.field} />
+      <Typography variant='h3'>Teams</Typography>
+      {user.teams.map((team) => (
+        <TeamCard key={team.id} team={team} />
+      ))}
+      <Divider className={classes.field} />
       <Button className={classes.field} color='secondary' fullWidth onClick={signOut} variant='outlined'>
         Sign out
       </Button>
@@ -187,7 +206,7 @@ export type IProps = {
   user: IUser | null;
 };
 
-const Profile = ({ user }: IProps) => (user ? <Authed /> : <NotAuthed />);
+const Profile = ({ user }: IProps) => (user ? <Authed user={user} /> : <NotAuthed />);
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   try {

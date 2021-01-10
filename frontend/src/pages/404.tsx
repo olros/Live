@@ -1,8 +1,4 @@
-import { GetServerSideProps } from 'next';
 import URLS from 'URLS';
-import { getAuthTokenServer } from 'utils';
-import { IFixtureCompact } from 'types/Fixture';
-import FixtureAPI from 'api/FixtureAPI';
 
 // Material UI
 import { makeStyles } from '@material-ui/core/styles';

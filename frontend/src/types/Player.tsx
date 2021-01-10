@@ -1,10 +1,10 @@
 import { ITeamCompact } from './Team';
 
 export enum EPosition {
-  KEEPER,
-  DEFENDER,
-  MIDFIELDER,
-  FORWARD,
+  KEEPER = 'Keeper',
+  DEFENDER = 'Defender',
+  MIDFIELDER = 'Midfielder',
+  FORWARD = 'Forward',
 }
 
 export interface IPlayer {

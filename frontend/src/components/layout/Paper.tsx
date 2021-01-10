@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   noBorder: {
     border: 'none',
   },
+  marginBottom: {
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 export type PaperProps = {
@@ -23,14 +26,21 @@ export type PaperProps = {
   shadow?: boolean;
   border?: boolean;
   noPadding?: boolean;
+  marginBottom?: boolean;
   className?: string;
 };
 
-const Paper = ({ shadow, border, noPadding, children, className }: PaperProps) => {
+const Paper = ({ shadow = false, border = false, noPadding = false, marginBottom = false, children, className }: PaperProps) => {
   const classes = useStyles();
   return (
     <MaterialPaper
-      className={classnames(border && classes.border, !noPadding && classes.padding, shadow && classes.noBorder, className)}
+      className={classnames(
+        border && classes.border,
+        marginBottom && classes.marginBottom,
+        !noPadding && classes.padding,
+        shadow && classes.noBorder,
+        className,
+      )}
       elevation={shadow ? 2 : 0}>
       {children}
     </MaterialPaper>

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import URLS from 'URLS';
-import { ICreateLeague } from 'types/League';
-import LeagueAPI from 'api/LeagueAPI';
+import { ICreateTeam } from 'types/Team';
+import TeamAPI from 'api/TeamAPI';
 import { useSnackbar } from 'hooks/Snackbar';
 
 // Material UI
@@ -20,17 +20,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CreateLeague = ({ ...buttonProps }: ButtonProps) => {
+export type IProps = ButtonProps & {
+  leagueId: number;
+};
+
+const CreateTeam = ({ leagueId, ...buttonProps }: IProps) => {
   const classes = useStyles();
   const router = useRouter();
   const showSnackbar = useSnackbar();
   const [isOpen, setIsOpen] = useState(false);
   const { handleSubmit, errors, register } = useForm();
-  const create = async (data: ICreateLeague) => {
+  const create = async (data: ICreateTeam) => {
     try {
-      const response = await LeagueAPI.createLeague({ name: data.name });
-      showSnackbar(`The league "${data.name}" was successfully created`, 'success');
-      router.push(`${URLS.LEAGUES}/${response.id}`);
+      const response = await TeamAPI.createTeam({ name: data.name, logo: data.logo, description: data.description, leagueId });
+      showSnackbar(`The team "${data.name}" was successfully created`, 'success');
+      router.push(`${URLS.TEAMS}/${response.id}`);
     } catch (e) {
       showSnackbar(e.message, 'error');
     }
@@ -38,9 +42,9 @@ const CreateLeague = ({ ...buttonProps }: ButtonProps) => {
   return (
     <>
       <Button className={classes.field} color='primary' fullWidth onClick={() => setIsOpen(true)} variant='outlined' {...buttonProps}>
-        Create new league
+        Create new team
       </Button>
-      <Dialog confirmText='Create league' onClose={() => setIsOpen(false)} onConfirm={handleSubmit(create)} open={isOpen} titleText='Create league'>
+      <Dialog confirmText='Create team' onClose={() => setIsOpen(false)} onConfirm={handleSubmit(create)} open={isOpen} titleText='Create team'>
         <form onSubmit={handleSubmit(create)}>
           <TextField
             className={classes.field}
@@ -53,10 +57,22 @@ const CreateLeague = ({ ...buttonProps }: ButtonProps) => {
             name='name'
             required
           />
+          <TextField className={classes.field} defaultValue='' fullWidth inputRef={register} label='Logo (url)' name='logo' />
+          <TextField
+            className={classes.field}
+            defaultValue=''
+            error={Boolean(errors.description)}
+            fullWidth
+            helperText={errors.description?.message}
+            inputRef={register({ required: 'You must provide a description' })}
+            label='Description'
+            name='description'
+            required
+          />
         </form>
       </Dialog>
     </>
   );
 };
 
-export default CreateLeague;
+export default CreateTeam;

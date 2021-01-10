@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { IAddLeagueAdmin, ILeague, IUpdateLeague } from 'types/League';
+import { IAddLeagueAdmin } from 'types/League';
+import { ITeam, IUpdateTeam } from 'types/Team';
 import { IUserCompact } from 'types/User';
-import LeagueAPI from 'api/LeagueAPI';
+import TeamAPI from 'api/TeamAPI';
 import { useSnackbar } from 'hooks/Snackbar';
 
 // Material UI
@@ -31,24 +32,26 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export type IProps = {
-  league: ILeague;
+  team: ITeam;
 };
 
-const LeagueAdmin = ({ league }: IProps) => {
+const TeamAdmin = ({ team }: IProps) => {
   const classes = useStyles();
   const showSnackbar = useSnackbar();
   const [admins, setAdmins] = useState<Array<IUserCompact>>([]);
-  const { handleSubmit: handleSubmitDetails, errors: errorsDetails, register: registerDetails } = useForm({ defaultValues: { name: league.name } });
-  const { handleSubmit: handleSubmitAdmin, errors: errorsAdmin, register: registerAdmin } = useForm();
+  const { handleSubmit: handleSubmitDetails, errors: errorsDetails, register: registerDetails } = useForm({
+    defaultValues: { name: team.name, logo: team.logo, description: team.description },
+  });
+  const { handleSubmit: handleSubmitAdmin, errors: errorsAdmin, register: registerAdmin, reset } = useForm();
   const router = useRouter();
 
   useEffect(() => {
-    LeagueAPI.getAllLeagueAdmins(league.id).then((admins) => setAdmins(admins));
-  }, [league.id]);
+    TeamAPI.getAllTeamAdmins(team.id).then((admins) => setAdmins(admins));
+  }, [team.id]);
 
-  const updateDetails = async (data: IUpdateLeague) => {
+  const updateDetails = async (data: IUpdateTeam) => {
     try {
-      await LeagueAPI.updateLeagueById(league.id, { name: data.name });
+      await TeamAPI.updateTeamById(team.id, { name: data.name, logo: data.logo, description: data.description });
       showSnackbar(`"${data.name}" was successfully updated`, 'success');
       router.replace(router.asPath);
     } catch (e) {
@@ -58,9 +61,10 @@ const LeagueAdmin = ({ league }: IProps) => {
 
   const addAdmin = async (data: IAddLeagueAdmin) => {
     try {
-      const newAdmins = await LeagueAPI.addLeagueAdmin(league.id, { email: data.email });
+      const newAdmins = await TeamAPI.addTeamAdmin(team.id, { email: data.email });
       setAdmins(newAdmins);
-      showSnackbar(`"${data.email}" was added as an admin of this league`, 'success');
+      showSnackbar(`"${data.email}" was added as an admin of this team`, 'success');
+      reset();
     } catch (e) {
       showSnackbar(e.message, 'error');
     }
@@ -68,9 +72,9 @@ const LeagueAdmin = ({ league }: IProps) => {
 
   const removeAdmin = async (userId: number) => {
     try {
-      const newAdmins = await LeagueAPI.deleteLeagueAdmin(league.id, userId);
+      const newAdmins = await TeamAPI.deleteTeamAdmin(team.id, userId);
       setAdmins(newAdmins);
-      showSnackbar(`The user was removed from being an admin of this league`, 'success');
+      showSnackbar(`The user was removed from being an admin of this team`, 'success');
     } catch (e) {
       showSnackbar(e.message, 'error');
     }
@@ -132,4 +136,4 @@ const LeagueAdmin = ({ league }: IProps) => {
   );
 };
 
-export default LeagueAdmin;
+export default TeamAdmin;
