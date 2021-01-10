@@ -15,6 +15,10 @@ import LinkGradientCard from 'components/layout/LinkGradientCard';
 const useStyles = makeStyles((theme) => ({
   topMargin: {
     marginTop: theme.spacing(5),
+    marginBottom: theme.spacing(1),
+  },
+  card: {
+    margin: theme.spacing(1, 0),
   },
 }));
 
@@ -23,20 +27,22 @@ export type IProps = {
   fixtures: Array<IFixtureCompact>;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Landing = ({ fixtures, isAuthed }: IProps) => {
-  // eslint-disable-next-line no-console
-  console.log(fixtures, isAuthed);
   const classes = useStyles();
   return (
-    <>
-      <Navigation>
-        <LinkGradientCard className={classes.topMargin} gradientFrom='#8A2387' gradientTo='#E94057' to={URLS.PROFILE}>
-          <Typography align='center' variant='h2'>
-            {isAuthed ? 'Profil' : 'Logg inn'}
-          </Typography>
-        </LinkGradientCard>
-      </Navigation>
-    </>
+    <Navigation>
+      <LinkGradientCard className={classes.topMargin} gradientFrom='#8A2387' gradientTo='#E94057' to={URLS.PROFILE}>
+        <Typography align='center' variant='h3'>
+          {isAuthed ? 'Profil' : 'Logg inn'}
+        </Typography>
+      </LinkGradientCard>
+      <LinkGradientCard className={classes.card} gradientFrom='#8E2DE2' gradientTo='#4A00E0' to={URLS.LEAGUES}>
+        <Typography align='center' variant='h3'>
+          Leagues
+        </Typography>
+      </LinkGradientCard>
+    </Navigation>
   );
 };
 

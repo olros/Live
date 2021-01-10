@@ -16,8 +16,13 @@ const theme = createMuiTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          padding: 16,
+          padding: 12,
         },
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        variant: 'outlined',
       },
     },
   },

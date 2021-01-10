@@ -7,6 +7,7 @@ import com.olafros.live.model.UserDtoList
 import com.olafros.live.model.toUserDtoList
 import com.olafros.live.payload.response.ErrorResponse
 import com.olafros.live.repository.LeagueRepository
+import com.olafros.live.repository.UserRepository
 import com.olafros.live.security.authorize.SecurityService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,7 +19,8 @@ import javax.validation.Valid
 @RequestMapping("/${APIConstants.BASE}/${APIConstants.LEAGUES}/{leagueId}/${APIConstants.ADMINS}")
 class LeagueAdminController(
     val leagueRepository: LeagueRepository,
-    val securityService: SecurityService
+    val securityService: SecurityService,
+    val userRepository: UserRepository,
 ) {
 
     fun getLeagueAdminsList(league: League): List<UserDtoList> {
@@ -43,7 +45,7 @@ class LeagueAdminController(
         @Valid @RequestBody newAdmin: AddLeagueAdminDto
     ): ResponseEntity<*> {
         val league = leagueRepository.findLeagueById(leagueId)
-        val user = securityService.getUser()
+        val user = userRepository.findByEmail(newAdmin.email)
         return when {
             (league == null) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body<Any>(ErrorResponse("Could not find the league"))

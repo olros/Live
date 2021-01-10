@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme: Theme) => ({
-  main: {
+  border: {
     border: '1px solid ' + theme.palette.divider,
   },
   padding: {
@@ -21,14 +21,17 @@ const useStyles = makeStyles((theme: Theme) => ({
 export type PaperProps = {
   children: React.ReactNode;
   shadow?: boolean;
+  border?: boolean;
   noPadding?: boolean;
   className?: string;
 };
 
-const Paper = ({ shadow, noPadding, children, className }: PaperProps) => {
+const Paper = ({ shadow, border, noPadding, children, className }: PaperProps) => {
   const classes = useStyles();
   return (
-    <MaterialPaper className={classnames(classes.main, !noPadding && classes.padding, shadow && classes.noBorder, className)} elevation={shadow ? 2 : 0}>
+    <MaterialPaper
+      className={classnames(border && classes.border, !noPadding && classes.padding, shadow && classes.noBorder, className)}
+      elevation={shadow ? 2 : 0}>
       {children}
     </MaterialPaper>
   );
