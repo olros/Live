@@ -16,10 +16,8 @@ fun main(args: Array<String>) {
 
 private fun props(): Properties {
     val properties = Properties()
-    print("\n Get Properties: \n")
     try {
         val connectString = System.getenv("MYSQLCONNSTR_localdb")
-        print("\n" + connectString + "\n")
         var database = ""
         var port = ""
 

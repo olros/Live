@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
 
 
 @Configuration
@@ -47,7 +48,13 @@ class WebSecurityConfig(var userDetailsService: UserDetailsServiceImpl, val unau
     }
 
     override fun configure(http: HttpSecurity) {
-        http.cors().and().csrf().disable()
+        http.cors().configurationSource {
+            val cors = CorsConfiguration()
+            cors.allowedOrigins = listOf("*")
+            cors.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            cors.allowedHeaders = listOf("*")
+            cors
+        }.and().csrf().disable()
             .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .authorizeRequests()

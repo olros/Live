@@ -1,6 +1,7 @@
 export const AUTH_TOKEN = 'auth_token';
 
-export const API_URL = process.env.API_URL || 'https://liveappbackend.azurewebsites.net/api';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://liveappbackend.azurewebsites.net/api';
+export const API_AUTH = 'auth';
 export const API_FIXTURE = 'fixtures';
 export const API_SEASONS = 'seasons';
 export const API_LEAGUES = 'leagues';

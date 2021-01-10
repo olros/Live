@@ -12,10 +12,19 @@ const theme = createMuiTheme({
       xl: 1200,
     },
   },
-  shape: {
-    borderRadius: 12,
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          padding: 16,
+        },
+      },
+    },
   },
-  spacing: 10,
+  shape: {
+    borderRadius: 16,
+  },
+  spacing: 8,
   palette: {
     primary: {
       main: '#58a6ff',

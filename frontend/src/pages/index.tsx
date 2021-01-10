@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next';
 import URLS from 'URLS';
-import { getAuthToken } from 'utils';
+import { getAuthTokenServer } from 'utils';
 import { IFixtureCompact } from 'types/Fixture';
 import FixtureAPI from 'api/FixtureAPI';
 
@@ -41,18 +41,14 @@ const Landing = ({ fixtures, isAuthed }: IProps) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const token = getAuthToken(req.headers.cookie);
+  const token = getAuthTokenServer(req.headers.cookie);
   try {
-    const fixtures: Array<IFixtureCompact> = await FixtureAPI.getAllFixtures();
+    const fixtures: Array<IFixtureCompact> = await FixtureAPI.getAllFixtures(token);
     const data: IProps = { isAuthed: Boolean(token), fixtures };
-    return {
-      props: data,
-    };
+    return { props: data };
   } catch (e) {
     const data: IProps = { isAuthed: Boolean(token), fixtures: [] };
-    return {
-      props: data,
-    };
+    return { props: data };
   }
 };
 
