@@ -13,6 +13,19 @@ const theme = createMuiTheme({
     },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        '@global': {
+          html: {
+            WebkitFontSmoothing: 'auto',
+          },
+          a: {
+            color: 'white',
+            textDecoration: 'none',
+          },
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {

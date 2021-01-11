@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import java.time.OffsetDateTime
 import javax.validation.Valid
 
 @RestController
@@ -44,7 +45,7 @@ class SeasonController(
                 .body<Any>(ErrorResponse("Could not find the season"))
         val table: MutableList<TableEntryDto> = mutableListOf()
         season.teams.forEach { team -> table.add(TableEntryDto(team.toTeamDtoList())) }
-        season.fixtures.forEach { fixture ->
+        season.fixtures.filter { fixture -> fixture.time.isBefore(OffsetDateTime.now()) }.forEach { fixture ->
             run {
                 val result = fixture.getResult()
                 table.find { entry -> entry.team.id == fixture.homeTeam.id }?.apply {

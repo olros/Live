@@ -1,9 +1,7 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useRouter } from 'next/router';
-import { useForm } from 'react-hook-form';
-import { IAddLeagueAdmin, ILeague } from 'types/League';
-import { ISeason, IAddSeasonTeam } from 'types/Season';
-import { IUserCompact } from 'types/User';
+import { ILeague } from 'types/League';
+import { ISeason } from 'types/Season';
 import SeasonAPI from 'api/SeasonAPI';
 import { useSnackbar } from 'hooks/Snackbar';
 
@@ -13,16 +11,6 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemText from '@material-ui/core/ListItemText';
-import IconButton from '@material-ui/core/IconButton';
-
-// Icons
-import DeleteIcon from '@material-ui/icons/Delete';
-
 // Project
 import Paper from 'components/layout/Paper';
 
@@ -51,9 +39,11 @@ const AddSeasonTeam = ({ league, season }: IProps) => {
       return;
     }
     try {
-      await SeasonAPI.addSeasonTeam(season.id, { teamId } as IAddSeasonTeam);
+      await SeasonAPI.addSeasonTeam(season.id, { teamId: Number(teamId) });
       showSnackbar(`The team was added to "${season.name}"`, 'success');
-      inputRef.current.value = '';
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
       router.replace(router.asPath);
     } catch (e) {
       showSnackbar(e.message, 'error');

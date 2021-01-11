@@ -48,17 +48,17 @@ export interface ICreateFixture {
   location?: string;
   referee?: string;
   time: string;
-  homeTeam: string;
-  awayTeam: string;
-  seasonId: string;
+  homeTeam: number;
+  awayTeam: number;
+  seasonId: number;
 }
 
 export interface IUpdateFixture {
   location?: string;
   referee?: string;
   time?: string;
-  homeTeam?: string;
-  awayTeam?: string;
+  homeTeam?: number;
+  awayTeam?: number;
 }
 
 export interface IParticipants {

@@ -53,6 +53,9 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.primary,
     textTransform: 'initial',
   },
+  marginBottom: {
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 export type IProps = {
@@ -62,12 +65,14 @@ export type IProps = {
     label: string;
     value: number | string;
   }>;
+  marginBottom?: boolean;
 };
 
-const Tabs = ({ selected, setSelected, tabs }: IProps) => {
+const Tabs = ({ selected, setSelected, tabs, marginBottom = false }: IProps) => {
   const classes = useStyles();
   return (
     <MuiTabs
+      className={marginBottom ? classes.marginBottom : ''}
       classes={{ root: classes.tabsRoot, flexContainer: classes.tabsFlexContainer, indicator: classes.tabsIndicator, scroller: classes.tabsScroller }}
       onChange={(e, newValue) => setSelected(newValue)}
       value={selected}>

@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { GetServerSideProps } from 'next';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { getAuthTokenServer } from 'utils';
+import URLS from 'URLS';
 import { ILeague } from 'types/League';
-import { ISeason, ISeasonCompact, ITableEntry } from 'types/Season';
+import { ISeason, ITableEntry } from 'types/Season';
 import { IFixtureCompact } from 'types/Fixture';
 import LeagueAPI from 'api/LeagueAPI';
 import SeasonAPI from 'api/SeasonAPI';
@@ -18,15 +20,22 @@ import Navigation from 'components/navigation/Navigation';
 import Paper from 'components/layout/Paper';
 import TopLayout from 'components/layout/TopLayout';
 import Tabs from 'components/layout/Tabs';
+// Project - Leagues
 import LeagueAdmin from 'components/leagues/LeagueAdmin';
+// Project - Teams
 import CreateTeam from 'components/teams/CreateTeam';
 import TeamCard from 'components/teams/TeamCard';
+// Project - Seasons
 import CreateSeason from 'components/seasons/CreateSeason';
 import SeasonCard from 'components/seasons/SeasonCard';
 import SeasonsSelect from 'components/seasons/SeasonsSelect';
 import AddSeasonTeam from 'components/seasons/AddSeasonTeam';
 import SeasonTeamListItem from 'components/seasons/SeasonTeamListItem';
 import SeasonAdmin from 'components/seasons/SeasonAdmin';
+import SeasonTable from 'components/seasons/SeasonTable';
+// Project - Fixtures
+import CreateFixture from 'components/fixtures/CreateFixture';
+import FixtureCard from 'components/fixtures/FixtureCard';
 
 const useStyles = makeStyles(() => ({
   seasonsList: {
@@ -50,10 +59,15 @@ enum TABS {
 
 const League = ({ league, season, fixtures, table }: IProps) => {
   const classes = useStyles();
+  const router = useRouter();
   const selectableTabs = [
     { label: 'Main', value: TABS.MAIN },
     { label: 'Teams admin', value: TABS.TEAMS },
     { label: 'Settings', value: TABS.ADMIN },
+  ];
+  const seasonTabs = [
+    { label: 'Fixtures', value: '/' },
+    { label: 'Table', value: '/table' },
   ];
   const [selectedTab, setSelectedTab] = useState(TABS.MAIN);
   return (
@@ -68,9 +82,27 @@ const League = ({ league, season, fixtures, table }: IProps) => {
         </Paper>
       )}
       <Collapse in={selectedTab === TABS.MAIN}>
-        <Paper>
+        <>
           {season ? (
-            <></>
+            <>
+              <Tabs
+                marginBottom
+                selected={fixtures ? '/' : '/table'}
+                setSelected={(page) => router.push(`${URLS.LEAGUES}/${league.id}/${season.id}${page}`)}
+                tabs={seasonTabs}
+              />
+              {fixtures && (
+                <>
+                  <CreateFixture season={season} />
+                  {fixtures
+                    .sort((a, b) => a.time.localeCompare(b.time))
+                    .map((fixture) => (
+                      <FixtureCard fixture={fixture} key={fixture.id} />
+                    ))}
+                </>
+              )}
+              {table && <SeasonTable table={table} />}
+            </>
           ) : (
             <>
               <Typography variant='h3'>Seasons</Typography>
@@ -82,7 +114,7 @@ const League = ({ league, season, fixtures, table }: IProps) => {
               {league.isAdmin && <CreateSeason leagueId={league.id} />}
             </>
           )}
-        </Paper>
+        </>
       </Collapse>
       <Collapse in={selectedTab === TABS.TEAMS} mountOnEnter>
         {season ? (

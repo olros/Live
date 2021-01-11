@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 // Project
 import Navigation from 'components/navigation/Navigation';
 import LinkGradientCard from 'components/layout/LinkGradientCard';
+import FixtureCard from 'components/fixtures/FixtureCard';
 
 const useStyles = makeStyles((theme) => ({
   topMargin: {
@@ -27,12 +28,14 @@ export type IProps = {
   fixtures: Array<IFixtureCompact>;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Landing = ({ fixtures, isAuthed }: IProps) => {
   const classes = useStyles();
   return (
     <Navigation>
-      <LinkGradientCard className={classes.topMargin} gradientFrom='#8A2387' gradientTo='#E94057' to={URLS.PROFILE}>
+      <Typography align='center' className={classes.topMargin} variant='h3'>
+        Welcome to Live!
+      </Typography>
+      <LinkGradientCard className={classes.card} gradientFrom='#8A2387' gradientTo='#E94057' to={URLS.PROFILE}>
         <Typography align='center' variant='h3'>
           {isAuthed ? 'Profil' : 'Logg inn'}
         </Typography>
@@ -42,6 +45,14 @@ const Landing = ({ fixtures, isAuthed }: IProps) => {
           Leagues
         </Typography>
       </LinkGradientCard>
+      <Typography align='center' className={classes.topMargin} variant='h3'>
+        Next fixtures
+      </Typography>
+      {fixtures
+        .sort((a, b) => a.time.localeCompare(b.time))
+        .map((fixture) => (
+          <FixtureCard fixture={fixture} key={fixture.id} />
+        ))}
     </Navigation>
   );
 };
