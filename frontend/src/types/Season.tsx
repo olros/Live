@@ -4,6 +4,7 @@ export interface ISeason {
   id: number;
   name: string;
   teams: Array<ITeamCompact>;
+  isAdmin: boolean;
 }
 
 export interface ISeasonCompact {

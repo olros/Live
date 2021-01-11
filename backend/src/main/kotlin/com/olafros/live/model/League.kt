@@ -59,7 +59,7 @@ fun League.toLeagueDto(): LeagueDto {
         this.id,
         this.name,
         this.teams.map { team -> team.toTeamDtoList() },
-        this.seasons.map { season -> season.toSeasonDtoList() },
+        this.seasons.map { season -> season.toSeasonDtoList() }.sortedBy { seasonDtoList -> seasonDtoList.name },
         isAdmin,
     )
 }

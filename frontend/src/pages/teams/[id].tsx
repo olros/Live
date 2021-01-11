@@ -30,7 +30,7 @@ enum TABS {
 const Team = ({ team }: IProps) => {
   const selectableTabs = [
     { label: 'Main', value: TABS.MAIN },
-    { label: 'Admin', value: TABS.ADMIN },
+    { label: 'Settings', value: TABS.ADMIN },
   ];
   const [selectedTab, setSelectedTab] = useState(TABS.MAIN);
   return (

@@ -23,7 +23,7 @@ const Leagues = ({ leagues }: IProps) => {
       {leagues.map((league) => (
         <LeagueCard key={league.id} league={league} />
       ))}
-      <CreateLeague color='secondary' />
+      <CreateLeague />
     </Navigation>
   );
 };
@@ -31,9 +31,6 @@ const Leagues = ({ leagues }: IProps) => {
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   try {
     const token = getAuthTokenServer(req.headers.cookie);
-    if (!token) {
-      throw new Error('');
-    }
     const leagues = await LeagueAPI.getAllLeagues(token);
     const data: IProps = { leagues };
     return { props: data };

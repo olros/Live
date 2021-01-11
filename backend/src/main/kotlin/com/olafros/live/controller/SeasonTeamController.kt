@@ -38,6 +38,8 @@ class SeasonTeamController(
             (!isValidTeam(team, team.league)) ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body<Any>(ErrorResponse("Could not find ${team.name} in this league"))
+            (season.teams.any { t -> t.id == team.id }) ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body<Any>(ErrorResponse("The team is already in this season"))
             else -> {
                 season.teams.add(team)
                 ResponseEntity.ok().body(seasonRepository.save(season).teams.map { t -> t.toTeamDtoList() })

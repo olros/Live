@@ -3,6 +3,8 @@ package com.olafros.live.model
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
+import org.springframework.security.authentication.AnonymousAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import javax.persistence.*
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
@@ -36,14 +38,18 @@ data class Season(
     var fixtures: MutableList<Fixture> = mutableListOf()
 )
 
-data class SeasonDto(val id: Long, val name: String, val teams: List<TeamDtoList>)
+data class SeasonDto(val id: Long, val name: String, val teams: List<TeamDtoList>, val isAdmin: Boolean)
 data class SeasonDtoList(val id: Long, val name: String)
 data class CreateSeasonDto(val name: String, val leagueId: Long)
 data class UpdateSeasonDto(val name: String?)
 data class AddSeasonTeamDto(val teamId: Long)
 
 fun Season.toSeasonDto(): SeasonDto {
-    return SeasonDto(this.id, this.name, this.teams.map { team -> team.toTeamDtoList() })
+    val auth = SecurityContextHolder.getContext().authentication
+    val isAdmin = if (auth != null && auth !is AnonymousAuthenticationToken) {
+        this.league.admins.any { user -> user.email == auth.name }
+    } else false
+    return SeasonDto(this.id, this.name, this.teams.map { team -> team.toTeamDtoList() }, isAdmin)
 }
 
 fun Season.toSeasonDtoList(): SeasonDtoList {

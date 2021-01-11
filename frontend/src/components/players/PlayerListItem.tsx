@@ -26,9 +26,13 @@ const PlayerListItem = ({ teamId, player, divider = false, admin = false }: IPro
   const router = useRouter();
   const showSnackbar = useSnackbar();
   const changeActiveStatus = async () => {
-    await TeamAPI.updateTeamPlayer(teamId, player.id, { active: !player.active });
-    showSnackbar(`${player.name} was switched to being an ${player.active ? 'former' : 'current'} player`, 'success');
-    router.replace(router.asPath);
+    try {
+      await TeamAPI.updateTeamPlayer(teamId, player.id, { active: !player.active });
+      showSnackbar(`${player.name} was switched to being an ${player.active ? 'former' : 'current'} player`, 'success');
+      router.replace(router.asPath);
+    } catch (e) {
+      showSnackbar(e.message, 'error');
+    }
   };
   return (
     <ListItem divider={divider}>

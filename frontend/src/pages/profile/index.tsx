@@ -183,14 +183,14 @@ const Authed = ({ user }: { user: IUser }) => {
   };
   return (
     <Navigation>
-      <Typography variant='h1'>Profile</Typography>
-      <Typography variant='h3'>Leagues</Typography>
+      <Typography variant='h1'>{`Hi, ${user.name}!`}</Typography>
+      <Typography variant='h3'>Your leagues</Typography>
       {user.leagues.map((league) => (
         <LeagueCard key={league.id} league={league} />
       ))}
       <CreateLeague />
       <Divider className={classes.field} />
-      <Typography variant='h3'>Teams</Typography>
+      <Typography variant='h3'>Your teams</Typography>
       {user.teams.map((team) => (
         <TeamCard key={team.id} team={team} />
       ))}
