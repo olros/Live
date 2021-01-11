@@ -40,8 +40,8 @@ const NotAuthed = () => {
   const classes = useStyles();
   const router = useRouter();
   const showSnackbar = useSnackbar();
-  const { handleSubmit: handleSubmitSignIn, errors: errorsSignIn, register: registerSignIn } = useForm();
-  const { handleSubmit: handleSubmitSignUp, errors: errorsSignUp, register: registerSignUp } = useForm();
+  const { handleSubmit: handleSubmitSignIn, errors: errorsSignIn, register: registerSignIn, setValue: setValueSignIn } = useForm();
+  const { handleSubmit: handleSubmitSignUp, errors: errorsSignUp, register: registerSignUp, setError: setErrorSignUp } = useForm();
   const [page, setPage] = useState(PAGES.LOGIN);
 
   const refreshData = () => {
@@ -58,7 +58,11 @@ const NotAuthed = () => {
       showSnackbar(e.message, 'error');
     }
   };
-  const signUp = async (data: ICreateUser) => {
+  const signUp = async (data: ICreateUser & { passwordRepeat: string }) => {
+    if (data.password !== data.passwordRepeat) {
+      setErrorSignUp('passwordRepeat', { type: 'manual', message: `The passwords aren't equal` });
+      return;
+    }
     try {
       const response = await AuthAPI.signUp({
         name: data.name,
@@ -67,6 +71,8 @@ const NotAuthed = () => {
       });
       showSnackbar(response.detail, 'success');
       setPage(PAGES.LOGIN);
+      setValueSignIn('email', data.email);
+      setValueSignIn('password', data.password);
     } catch (e) {
       showSnackbar(e.message, 'error');
     }
@@ -152,6 +158,22 @@ const NotAuthed = () => {
               })}
               label='Password'
               name='password'
+              required
+              type='password'
+              variant='outlined'
+            />
+            <TextField
+              className={classes.field}
+              defaultValue=''
+              error={Boolean(errorsSignUp.passwordRepeat)}
+              fullWidth
+              helperText={errorsSignUp.passwordRepeat?.message}
+              inputRef={registerSignUp({
+                required: 'You must type the password again',
+                minLength: { value: 6, message: 'The password must be at least 6 characters long' },
+              })}
+              label='Repeat password'
+              name='passwordRepeat'
               required
               type='password'
               variant='outlined'
