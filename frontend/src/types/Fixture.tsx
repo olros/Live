@@ -32,8 +32,10 @@ export interface IFixture {
   homeTeam: ITeamCompact;
   awayTeam: ITeamCompact;
   season: ISeasonCompact;
-  players: Array<IPlayerCompact>;
+  homeTeamPlayers: Array<IFixturePlayerCompact>;
+  awayTeamPlayers: Array<IFixturePlayerCompact>;
   result: IFixtureResult;
+  isAdmin: boolean;
 }
 
 export interface IFixtureCompact {

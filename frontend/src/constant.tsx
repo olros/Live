@@ -5,6 +5,7 @@ export const API_AUTH = 'auth';
 export const API_AUTH_SIGNIN = 'signin';
 export const API_AUTH_SIGNUP = 'signup';
 export const API_FIXTURES = 'fixtures';
+export const API_EVENTS = 'events';
 export const API_SEASONS = 'seasons';
 export const API_LEAGUES = 'leagues';
 export const API_PLAYERS = 'players';

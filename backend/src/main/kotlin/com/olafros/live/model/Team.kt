@@ -54,7 +54,7 @@ data class TeamDto(
     val players: List<PlayerDtoList>,
 )
 
-data class TeamDtoList(val id: Long, val name: String, val logo: String)
+data class TeamDtoList(val id: Long, val name: String, val logo: String, val isAdmin: Boolean)
 data class CreateTeamDto(val name: String, val logo: String?, val description: String?, val leagueId: Long)
 data class UpdateTeamDto(val name: String?, val logo: String?, val description: String?)
 
@@ -75,5 +75,9 @@ fun Team.toTeamDto(): TeamDto {
 }
 
 fun Team.toTeamDtoList(): TeamDtoList {
-    return TeamDtoList(this.id, this.name, this.logo.orEmpty())
+    val auth = SecurityContextHolder.getContext().authentication
+    val isAdmin = if (auth != null && auth !is AnonymousAuthenticationToken) {
+        this.admins.any { user -> user.email == auth.name } || this.league.admins.any { user -> user.email == auth.name }
+    } else false
+    return TeamDtoList(this.id, this.name, this.logo.orEmpty(), isAdmin)
 }

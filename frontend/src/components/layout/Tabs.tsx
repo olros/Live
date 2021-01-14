@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-flex',
     position: 'relative',
     zIndex: 1,
+    width: '100%',
   },
   tabsScroller: {
     [theme.breakpoints.up('md')]: {
@@ -52,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
   tabWrapper: {
     color: theme.palette.text.primary,
     textTransform: 'initial',
+    whiteSpace: 'nowrap',
   },
   marginBottom: {
     marginBottom: theme.spacing(2),
@@ -75,7 +77,8 @@ const Tabs = ({ selected, setSelected, tabs, marginBottom = false }: IProps) => 
       className={marginBottom ? classes.marginBottom : ''}
       classes={{ root: classes.tabsRoot, flexContainer: classes.tabsFlexContainer, indicator: classes.tabsIndicator, scroller: classes.tabsScroller }}
       onChange={(e, newValue) => setSelected(newValue)}
-      value={selected}>
+      value={selected}
+      variant='fullWidth'>
       {tabs.map((tab, i) => (
         <Tab classes={{ root: classes.tabRoot, wrapper: classes.tabWrapper }} disableRipple key={i} label={tab.label} value={tab.value} />
       ))}

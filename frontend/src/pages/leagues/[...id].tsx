@@ -10,7 +10,6 @@ import LeagueAPI from 'api/LeagueAPI';
 import SeasonAPI from 'api/SeasonAPI';
 
 // Material UI
-import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import Collapse from '@material-ui/core/Collapse';
@@ -37,13 +36,6 @@ import SeasonTable from 'components/seasons/SeasonTable';
 import CreateFixture from 'components/fixtures/CreateFixture';
 import FixtureCard from 'components/fixtures/FixtureCard';
 
-const useStyles = makeStyles(() => ({
-  seasonsList: {
-    display: 'flex',
-    flexDirection: 'column-reverse',
-  },
-}));
-
 export type IProps = {
   league: ILeague;
   season: ISeason | null;
@@ -58,7 +50,6 @@ enum TABS {
 }
 
 const League = ({ league, season, fixtures, table }: IProps) => {
-  const classes = useStyles();
   const router = useRouter();
   const selectableTabs = [
     { label: 'Main', value: TABS.MAIN },

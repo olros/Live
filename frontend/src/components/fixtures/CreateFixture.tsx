@@ -39,7 +39,7 @@ const CreateFixture = ({ season, ...buttonProps }: IProps) => {
         seasonId: season.id,
         homeTeam: data.homeTeam,
         awayTeam: data.awayTeam,
-        time: `${data.time}:00Z`,
+        time: new Date(data.time).toJSON(),
         location: data.location,
         referee: data.referee,
       });

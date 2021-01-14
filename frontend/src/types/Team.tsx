@@ -13,6 +13,7 @@ export interface ITeamCompact {
   id: number;
   name: string;
   logo?: string;
+  isAdmin: boolean;
 }
 
 export interface ICreateTeam {

@@ -1,6 +1,7 @@
 import URLS from 'URLS';
 import { IFixtureCompact } from 'types/Fixture';
 import parseISO from 'date-fns/parseISO';
+import isPast from 'date-fns/isPast';
 import { formatDate } from 'utils';
 
 // Material UI
@@ -33,7 +34,9 @@ const FixtureCard = ({ fixture }: IProps) => {
         <Typography align='right' variant='h3'>
           {fixture.homeTeam.name}
         </Typography>
-        <Typography align='center' variant='h3'>{`${fixture.result.homeTeam} - ${fixture.result.awayTeam}`}</Typography>
+        <Typography align='center' variant='h3'>{`${isPast(parseISO(fixture.time)) ? fixture.result.homeTeam : ''} - ${
+          isPast(parseISO(fixture.time)) ? fixture.result.awayTeam : ''
+        }`}</Typography>
         <Typography align='left' variant='h3'>
           {fixture.awayTeam.name}
         </Typography>

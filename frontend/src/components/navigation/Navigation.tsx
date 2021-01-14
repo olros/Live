@@ -49,15 +49,11 @@ const Navigation = ({ children, isLoading, noFooter, noTopbar, maxWidth }: Navig
           )}
         </main>
       )}
-      {!noFooter &&
-        !isLoading &&
-        (maxWidth === false ? (
+      {!noFooter && !isLoading && (
+        <Container className={classes.container} maxWidth={maxWidth || 'lg'}>
           <Footer />
-        ) : (
-          <Container className={classes.container} maxWidth={maxWidth || 'lg'}>
-            <Footer />
-          </Container>
-        ))}
+        </Container>
+      )}
     </>
   );
 };

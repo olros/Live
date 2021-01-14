@@ -2,6 +2,8 @@ package com.olafros.live.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonManagedReference
+import org.springframework.security.authentication.AnonymousAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import java.time.OffsetDateTime
 import javax.persistence.*
 import javax.validation.constraints.NotNull
@@ -47,8 +49,10 @@ data class FixtureDto(
     val homeTeam: TeamDtoList,
     val awayTeam: TeamDtoList,
     val season: SeasonDtoList,
-    val players: List<FixturePlayerDtoList>,
-    val result: FixtureResult
+    val homeTeamPlayers: List<FixturePlayerDtoList>,
+    val awayTeamPlayers: List<FixturePlayerDtoList>,
+    val result: FixtureResult,
+    val isAdmin: Boolean,
 )
 
 data class FixtureDtoList(
@@ -90,8 +94,12 @@ fun Fixture.getResult(): FixtureResult {
     return FixtureResult(homeTeam, awayTeam)
 }
 
-fun Fixture.toFixtureDto() =
-    FixtureDto(
+fun Fixture.toFixtureDto(): FixtureDto {
+    val auth = SecurityContextHolder.getContext().authentication
+    val isAdmin = if (auth != null && auth !is AnonymousAuthenticationToken) {
+        this.season.league.admins.any { user -> user.email == auth.name }
+    } else false
+    return FixtureDto(
         this.id,
         this.location,
         this.referee,
@@ -99,9 +107,12 @@ fun Fixture.toFixtureDto() =
         this.homeTeam.toTeamDtoList(),
         this.awayTeam.toTeamDtoList(),
         this.season.toSeasonDtoList(),
-        this.players.map { player -> player.toFixturePlayerDtoList() },
-        this.getResult()
+        this.players.filter { player -> player.player.team.id == this.homeTeam.id }.map { player -> player.toFixturePlayerDtoList() },
+        this.players.filter { player -> player.player.team.id == this.awayTeam.id }.map { player -> player.toFixturePlayerDtoList() },
+        this.getResult(),
+        isAdmin
     )
+}
 
 fun Fixture.toFixtureDtoList() =
     FixtureDtoList(
